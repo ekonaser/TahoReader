@@ -1,0 +1,10 @@
+/*HOW TO BUILD*/
+
+**GCC**
+g++ -Iinclude -Iproc -Itahoreader src/winmain.cpp include/functions.cpp
+include/structs.cpp tahoreader/TahoReader.cpp proc/mainwndproc.cpp
+proc/idwndproc.cpp proc/activitieswndproc.cpp proc/vehicleswndproc.cpp -luser32
+-lgdi32 -lwinscard -o program.exe
+
+**MSVC**
+cl /EHsc /Iinclude /Iproc /Itahoreader src/winmain.cpp include/functions.cpp include/structs.cpp tahoreader/TahoReader.cpp proc/mainwndproc.cpp proc/idwndproc.cpp proc/activitieswndproc.cpp proc/vehicleswndproc.cpp /link user32.lib gdi32.lib winscard.lib /SUBSYSTEM:WINDOWS /out:program.exe

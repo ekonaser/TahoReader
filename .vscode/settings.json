@@ -1,0 +1,13 @@
+{
+  "files.associations": {
+    "xlocinfo": "cpp",
+    "xstring": "cpp",
+    "charconv": "cpp",
+    "xmemory": "cpp"
+  },
+  "C_Cpp.default.includePath": [
+    "${workspaceFolder}//include",
+    "${workspaceFolder}//proc",
+    "${workspaceFolder}//tahoreader"
+  ]
+}

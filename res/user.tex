@@ -1,0 +1,12 @@
+\documentclass[tikz]{standalone}
+\usepackage{xcolor}
+\definecolor{winWhite}{RGB}{255, 255, 255}
+\begin{document}
+\begin{tikzpicture}
+  % Head
+  \fill[winWhite] (0,0) circle (0.5);
+
+  % Body (filled arc)
+  \fill[winWhite] (-1,-1.49) arc[start angle=180, end angle=0, radius=1] -- (1,-1.49) -- cycle;
+\end{tikzpicture}
+\end{document}
