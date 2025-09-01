@@ -98,6 +98,7 @@ void DrawingBrush::CreateColor(uint8_t a, uint8_t b, uint8_t c) {
 }
 
 void DrawingBrush::DrawOneDay(BYTE* ptr, int counter, ActivityData& pData) {
+    /* Recursive method */
     if (!counter)
     {
         return;
