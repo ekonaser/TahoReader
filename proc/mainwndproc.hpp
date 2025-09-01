@@ -10,6 +10,10 @@
 #define ID_ACTIVITIESTAB_UPDATE_ACTIVITIES 1032
 #define ID_VEHICLESTAB 1003
 
+// buttons
+#define ID_ACTIVITIESTAB_LBUTTON 1501
+#define ID_ACTIVITIESTAB_RBUTTON 1502
+
 #include "functions.hpp"
 
 LRESULT CALLBACK MainWndProc(HWND hMainWindow, UINT msg, WPARAM wParam, LPARAM lParam);

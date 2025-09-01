@@ -153,10 +153,10 @@ LRESULT CALLBACK DrawWndProc(HWND hParentWindow, UINT msg, WPARAM wParam, LPARAM
 
 LRESULT CALLBACK ActivitiesWndProc(HWND hParentWindow, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-    static HWND hDraw, hTree, Day, Rest, Administration, Work, Driving, hUTC;
+    static HWND hDraw, hTree, Day, Rest, Administration, Work, Driving, hUTCLButton, hUTCRButton, hUTCString;
     static Activities activities(nullptr, 0, 0);
     static LPCSTR Time;
-    static LPCWSTR RestTime, AdministrationTime, WorkTime, DrivingTime;
+    static LPCWSTR RestTime, AdministrationTime, WorkTime, DrivingTime, hUTCTime;
     char timeBuffer[17];
     wchar_t timeBufferW[20];
     switch (msg)
@@ -197,7 +197,13 @@ LRESULT CALLBACK ActivitiesWndProc(HWND hParentWindow, UINT msg, WPARAM wParam, 
             Driving = CreateWindowW(L"STATIC", DrivingTime, WS_CHILD | WS_VISIBLE,
                 0, 0, 0, 0, hParentWindow, NULL, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
             
-            hUTC = CreateWindow(UPDOWN_CLASS, NULL, WS_CHILD | WS_BORDER | WS_VISIBLE | ES_NUMBER,
+            hUTCLButton = CreateWindow(TEXT("BUTTON"), TEXT("<"), WS_CHILD | WS_BORDER | WS_VISIBLE | ES_NUMBER,
+                0, 0, 0, 0, hParentWindow, (HMENU)ID_ACTIVITIESTAB_LBUTTON, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
+            
+            hUTCRButton = CreateWindow(TEXT("BUTTON"), TEXT(">"), WS_CHILD | WS_BORDER | WS_VISIBLE | ES_NUMBER,
+                0, 0, 0, 0, hParentWindow, (HMENU)ID_ACTIVITIESTAB_RBUTTON, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
+            
+            hUTCString = CreateWindowW(L"STATIC", hUTCTime, WS_CHILD | WS_VISIBLE,
                 0, 0, 0, 0, hParentWindow, NULL, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
             break;
         }
@@ -207,8 +213,10 @@ LRESULT CALLBACK ActivitiesWndProc(HWND hParentWindow, UINT msg, WPARAM wParam, 
             GetClientRect(hParentWindow, &hParentWindowSize);
             int width = hParentWindowSize.right;
             int height = hParentWindowSize.bottom;
-            MoveWindow(Day, width / 2 + 10, height - 80, 100, 20, TRUE);
-            MoveWindow(hUTC, width - 40, height - 80, 30, 50, TRUE);
+            MoveWindow(Day, width / 2 + 10, height - 80, 90, 20, TRUE);
+            MoveWindow(hUTCLButton, width / 2 + 100, height - 80, 20, 20, TRUE);
+            MoveWindow(hUTCString, width / 2 + 130, height - 80, 60, 20, TRUE);
+            MoveWindow(hUTCRButton, width / 2 + 190, height - 80, 20, 20, TRUE);
             MoveWindow(Driving, width / 2 + 160, height - 40, 60, 20, TRUE);
             MoveWindow(Work, width / 2 + 160, height - 60, 60, 20, TRUE);
             MoveWindow(Administration, width / 2 + 30, height - 40, 60, 20, TRUE);
@@ -270,6 +278,9 @@ LRESULT CALLBACK ActivitiesWndProc(HWND hParentWindow, UINT msg, WPARAM wParam, 
             wsprintfW(timeBufferW, L"%02i:%02i", ptrToActivitiesCounter->driving / 60, ptrToActivitiesCounter->driving % 60);
             DrivingTime = timeBufferW;
             SetWindowTextW(Driving, DrivingTime);
+            wsprintfW(timeBufferW, L"UTC + %i", UTC);
+            hUTCTime = timeBufferW;
+            SetWindowTextW(hUTCString, hUTCTime);
             break;
         }
         case WM_KEYDOWN:
@@ -293,17 +304,24 @@ LRESULT CALLBACK ActivitiesWndProc(HWND hParentWindow, UINT msg, WPARAM wParam, 
             }
             break;
         }
-        case WM_NOTIFY:
+        case WM_COMMAND:
         {
-            NMHDR* nmhdr = (NMHDR*)lParam;
-
-            if (nmhdr->code == UDN_DELTAPOS)
+            switch (LOWORD(wParam))
             {
-                NMUPDOWN* nmUpDown = (NMUPDOWN*)lParam;
-                UTC += nmUpDown->iDelta;
-                if (UTC < -12) UTC = 14;
-                if (UTC > 14) UTC = -12;
+                case ID_ACTIVITIESTAB_LBUTTON:
+                {
+                    UTC -= 1;
+                    break;
+                }
+                case ID_ACTIVITIESTAB_RBUTTON:
+                {
+                    UTC += 1;
+                    break;
+                }
             }
+            if (UTC < -12) UTC = 14;
+            if (UTC > 14) UTC = -12;
+            SendMessage(hDraw, ID_ACTIVITIESTAB_DRAW_DAY, 0, (LPARAM)activities.GetNextPtrWrp());
             break;
         }
         default:

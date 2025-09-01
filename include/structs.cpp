@@ -107,7 +107,7 @@ void DrawingBrush::DrawOneDay(BYTE* ptr, int counter, ActivityData& pData) {
     GetClientRect(window, &hWindowRect);
     activity = (ptr[0] << 8) | ptr[1];
     activityType = (activity >> 11) & 0b11;
-    activityTime = ((activity & 0b0000011111111111) % 1440);
+    activityTime = ((activity & 0b0000011111111111) % 1440) + (UTC * 60);
     prevTime = activityTime;
     rect.top = activityTime * 10; // FIRST
     // we draw first starting event as a straight line on timeline
@@ -120,7 +120,7 @@ void DrawingBrush::DrawOneDay(BYTE* ptr, int counter, ActivityData& pData) {
     while (counter > 0)
     {
         activity = (ptr[0] << 8) | ptr[1];
-        activityTime = ((activity & 0b0000011111111111) % 1440);
+        activityTime = ((activity & 0b0000011111111111) % 1440) + (UTC * 60);
         duration = activityTime - prevTime;
         rect.bottom = activityTime * 10; // FIRST
         switch (activityType)

@@ -16,7 +16,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR cmdline, 
     CreateMainMenu();
     
     // getting x and y center positions
-    int x = GetSystemMetrics(SM_CXSCREEN) / 2 - 400, y = GetSystemMetrics(SM_CYSCREEN) / 2 - 400;
+    int x = GetSystemMetrics(SM_CXSCREEN) / 2 - 500, y = GetSystemMetrics(SM_CYSCREEN) / 2 - 400;
 
     HWND MainWindow = CreateWindow(TEXT("TahoReader"), TEXT("TahoReader"), WS_OVERLAPPEDWINDOW,
         x, y, 1000, 800, NULL, MainMenu, hInstance, NULL);

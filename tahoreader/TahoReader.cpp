@@ -23,9 +23,6 @@ void TahoReader::SelectFile(const BYTE(&cmd)[N]) {
     SCardTransmit(cardHandle, choosenProtocol, cmd, N, NULL, buffer, &bufferResponseLen);
 }
 
-/* NEKAKO PROBAJ BREZ SPODNJE LINIJE ZA DA SLUCAJNO NE CRPAS VSE IZ ENE
-IN ISTE KOMANDE, KER CE POTEM TEGA NE MORES PRAVILNO DELATI...
-*/
 template void TahoReader::SelectFile<11>(const BYTE(&cmd)[11]);
 
 BYTE* TahoReader::ReadData(int length) {
