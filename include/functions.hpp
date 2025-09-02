@@ -8,6 +8,10 @@
 #include <CommCtrl.h>
 #include "structs.hpp"
 
+// global handles
+extern HWND TabControl, IDTab, ActivitiesTab, VehiclesTab;
+
+// menu
 extern HMENU MainMenu;
 
 // main driver card data/sections
@@ -24,3 +28,4 @@ void ReadTachographCard();
 void SetTabNames(TCITEM tci, HWND TabControl, LPWSTR text, int noTab);
 void SetWindowAttr(WNDCLASS& wc, HBRUSH color, LPCWSTR cursor, LPCWSTR icon, HINSTANCE hInstance, WNDPROC func, LPCWSTR classname, LPCWSTR menu, UINT style);
 void RedrawBitMap(int left, int top, int right, int bottom, HDC& memDC, HWND& Window);
+void FlushMemory();

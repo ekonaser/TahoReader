@@ -143,6 +143,15 @@ LRESULT CALLBACK DrawWndProc(HWND hParentWindow, UINT msg, WPARAM wParam, LPARAM
             SendMessage(hParentWindow, WM_SIZE, 0, sizeParam);
             break;
         }
+        case ID_ACTIVITIESTAB_RESET:
+        {
+            CurrentDay = nullptr;
+            RECT hParentWindowSize;
+            GetClientRect(hParentWindow, &hParentWindowSize);
+            LPARAM sizeParam = MAKELPARAM(hParentWindowSize.right, 14400);
+            SendMessage(hParentWindow, WM_SIZE, 0, sizeParam);
+            break;
+        }
         default:
         {
             return DefWindowProc(hParentWindow, msg, wParam, lParam);
@@ -244,11 +253,17 @@ LRESULT CALLBACK ActivitiesWndProc(HWND hParentWindow, UINT msg, WPARAM wParam, 
         }
         case ID_ACTIVITIESTAB_UPDATE:
         {
+            activities.~Activities();
             uint16_t end = (activitiesDATAptr[0] << 8) | activitiesDATAptr[1];
             uint16_t start = (activitiesDATAptr[2] << 8) | activitiesDATAptr[3];
             activities.readActivities(activitiesDATAptr+4, end, start);
             SendMessage(hParentWindow, ID_ACTIVITIESTAB_UPDATE_TIME, 0, 0);
             SendMessage(hDraw, ID_ACTIVITIESTAB_DRAW_DAY, 0, (LPARAM)activities.GetNextPtrWrp()); // we send pointer to the data that will be drawn
+            break;
+        }
+        case ID_ACTIVITIESTAB_RESET:
+        {
+            activities.~Activities();
             break;
         }
         case ID_ACTIVITIESTAB_UPDATE_TIME:
@@ -259,6 +274,9 @@ LRESULT CALLBACK ActivitiesWndProc(HWND hParentWindow, UINT msg, WPARAM wParam, 
                 DateStamp(epoch, year, month, day);
                 sprintf(timeBuffer, "%04i-%02i-%02i", year, month, day);
                 Time = timeBuffer;
+                SetWindowTextA(Day, Time);
+            } else {
+                Time = {};
                 SetWindowTextA(Day, Time);
             }
             break;
@@ -278,7 +296,11 @@ LRESULT CALLBACK ActivitiesWndProc(HWND hParentWindow, UINT msg, WPARAM wParam, 
             wsprintfW(timeBufferW, L"%02i:%02i", ptrToActivitiesCounter->driving / 60, ptrToActivitiesCounter->driving % 60);
             DrivingTime = timeBufferW;
             SetWindowTextW(Driving, DrivingTime);
-            wsprintfW(timeBufferW, L"UTC + %i", UTC);
+            if (UTC < 0) {
+                wsprintfW(timeBufferW, L"UTC %i", UTC);
+            } else {
+                wsprintfW(timeBufferW, L"UTC +%i", UTC);
+            }
             hUTCTime = timeBufferW;
             SetWindowTextW(hUTCString, hUTCTime);
             break;

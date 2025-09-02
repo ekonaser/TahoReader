@@ -1,5 +1,6 @@
 #include "functions.hpp"
 #include "TahoReader.hpp"
+#include "mainwndproc.hpp"
 
 HMENU MainMenu;
 ID idData;
@@ -46,12 +47,17 @@ void CreateMainMenu(){
     // setting up main menu
     MainMenu = CreateMenu();
     HMENU Program = CreateMenu();
+    HMENU Card = CreateMenu();
     HMENU Help = CreateMenu();
     
-    AppendMenu(Program, MF_STRING, 101, TEXT("Exit"));
+    AppendMenu(Program, MF_STRING, 101, TEXT("Exit\tAlt+F4"));
     AppendMenu(MainMenu, MF_STRING | MF_POPUP, (UINT_PTR)(Program), TEXT("Program"));
 
-    AppendMenu(Help, MF_STRING, 201, TEXT("About"));
+    AppendMenu(Card, MF_STRING, 201, TEXT("Read card\tF5"));
+    AppendMenu(Card, MF_STRING, 202, TEXT("Flush memory"));
+    AppendMenu(MainMenu, MF_STRING | MF_POPUP, (UINT_PTR)(Card), TEXT("Card"));
+
+    AppendMenu(Help, MF_STRING, 301, TEXT("About"));
     AppendMenu(MainMenu, MF_STRING | MF_POPUP, (UINT_PTR)(Help), TEXT("Help"));
 }
 
@@ -75,12 +81,24 @@ void SetWindowAttr(WNDCLASS& wc, HBRUSH color, LPCWSTR cursor, LPCWSTR icon, HIN
     wc.style = style;
 }
 
+void FlushMemory()
+{
+    delete activitiesDATAptr;
+    activitiesDATAptr = nullptr;
+    delete vehiclesDATAptr;
+    vehiclesDATAptr = nullptr;
+    idData = {};
+
+    SendMessage(IDTab, ID_IDTAB_UPDATE, 0, 0);
+    HWND hWndtoDrawProc = FindWindowEx(ActivitiesTab, NULL, TEXT("DrawWindow"), NULL);
+    SendMessage(ActivitiesTab, ID_ACTIVITIESTAB_RESET, 0, 0);
+    SendMessage(ActivitiesTab, ID_ACTIVITIESTAB_UPDATE_TIME, 0, 0);
+    SendMessage(hWndtoDrawProc, ID_ACTIVITIESTAB_RESET, 0, 0);
+}
+
 void ReadTachographCard()
 {
-    delete[] activitiesDATAptr;
-    activitiesDATAptr = nullptr;
-    delete[] vehiclesDATAptr;
-    vehiclesDATAptr = nullptr;
+    FlushMemory();
 
     TahoReader reader;
     reader.SelectFile({0x00, 0xA4, 0x04, 0x0C, 0x06, 0xFF, 0x54, 0x41, 0x43, 0x48, 0x4F}); // selecting TAHO app

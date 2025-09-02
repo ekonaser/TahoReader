@@ -2,10 +2,12 @@
 #include "idwndproc.hpp"
 #include "vehicleswndproc.hpp"
 #include "activitieswndproc.hpp"
+#include "functions.hpp"
+
+HWND TabControl, IDTab, ActivitiesTab, VehiclesTab;
 
 LRESULT CALLBACK MainWndProc(HWND hMainWindow, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-    static HWND TabControl, IDTab, ActivitiesTab, VehiclesTab;
     const static WCHAR Tab1[] = L"ID", Tab2[] = L"Activities", Tab3[] = L"Vehicles";
     static TCITEM tci = {};
     switch (msg)
@@ -105,7 +107,23 @@ LRESULT CALLBACK MainWndProc(HWND hMainWindow, UINT msg, WPARAM wParam, LPARAM l
         {
             switch (LOWORD(wParam))
             {
+                case 101:
+                {
+                    PostQuitMessage(0);
+                    break;
+                }
                 case 201:
+                {
+                    ReadTachographCard();
+                    SendMessage(IDTab, ID_IDTAB_UPDATE, 0, 0);
+                    SendMessage(ActivitiesTab, ID_ACTIVITIESTAB_UPDATE, 0, 0);
+                    break;
+                }
+                case 202:
+                {
+                    FlushMemory();
+                }
+                case 301:
                 {
                     break; // remove this line afterwards!
                 }

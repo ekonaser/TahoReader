@@ -76,6 +76,7 @@ Activities::~Activities() {
     for (int i = 0; i < 365; i++) {
         if (ptrWrp[i]) {
             delete ptrWrp[i];
+            ptrWrp[i] = nullptr;
         }
     }
 }
