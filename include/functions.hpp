@@ -22,7 +22,7 @@ extern BYTE* vehiclesDATAptr;
 extern int UTC;
 
 const SCARD_IO_REQUEST* getProtocol(DWORD activeProtocol);
-void DateStamp(int epoch, int& year, int& month, int& day);
+void DateStamp(uint32_t epoch, char* buffer, char mark = '-');
 void CreateMainMenu();
 void ReadTachographCard();
 void SetTabNames(TCITEM tci, HWND TabControl, LPWSTR text, int noTab);

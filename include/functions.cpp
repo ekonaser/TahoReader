@@ -19,8 +19,9 @@ const SCARD_IO_REQUEST* getProtocol(DWORD activeProtocol)
         return SCARD_PCI_RAW;
 }
 
-void DateStamp(int epoch, int& year, int& month, int& day)
+void DateStamp(uint32_t epoch, char* buffer, char mark)
 {
+    int year = 1970, month = 1, day = 1;
     int sec = epoch % 86400; // HH:MM:SS
     int i = 0;
     int months[12] = {2678400,2419200,2678400,2592000,2678400,2592000,2678400,2678400,2592000,2678400,2592000,2678400};
@@ -41,6 +42,7 @@ void DateStamp(int epoch, int& year, int& month, int& day)
     }
     month += i;
     day += epoch / 86400;
+    sprintf(buffer, "%04d%c%02d%c%02d", year, mark, month, mark, day);
 }
 
 void CreateMainMenu(){

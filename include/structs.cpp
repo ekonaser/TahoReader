@@ -11,9 +11,7 @@ LPCSTR ID::BirthDay()
 LPCSTR ID::Date(uint32_t& variable)
 {
     static char buffer[10];
-    int epoch = _byteswap_ulong(variable), year = 1970, month = 1, day = 1;
-    DateStamp(epoch, year, month, day);
-    sprintf(buffer, "%04i.%02i.%02i", year, month, day);
+    DateStamp(_byteswap_ulong(variable), buffer, '.');
     return buffer;
 }
 

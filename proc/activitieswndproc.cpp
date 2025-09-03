@@ -166,7 +166,7 @@ LRESULT CALLBACK ActivitiesWndProc(HWND hParentWindow, UINT msg, WPARAM wParam, 
     static Activities activities(nullptr, 0, 0);
     static LPCSTR Time;
     static LPCWSTR RestTime, AdministrationTime, WorkTime, DrivingTime, hUTCTime;
-    char timeBuffer[17];
+    char timeBuffer[10];
     wchar_t timeBufferW[20];
     switch (msg)
     {
@@ -270,9 +270,7 @@ LRESULT CALLBACK ActivitiesWndProc(HWND hParentWindow, UINT msg, WPARAM wParam, 
         {
             if (activities.GetNextPtrWrp())
             {
-                int epoch = _byteswap_ulong(activities.GetNextPtrWrp()->header.time), year = 1970, month = 1, day = 1;
-                DateStamp(epoch, year, month, day);
-                sprintf(timeBuffer, "%04i-%02i-%02i", year, month, day);
+                DateStamp(_byteswap_ulong(activities.GetNextPtrWrp()->header.time), timeBuffer);
                 Time = timeBuffer;
                 SetWindowTextA(Day, Time);
             } else {
