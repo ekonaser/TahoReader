@@ -1,6 +1,7 @@
 #include "activitieswndproc.hpp"
 #include "structs.hpp"
 #include "mainwndproc.hpp"
+#include "tree.cpp"
 
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 
@@ -166,6 +167,7 @@ LRESULT CALLBACK ActivitiesWndProc(HWND hParentWindow, UINT msg, WPARAM wParam, 
     static Activities activities(nullptr, 0, 0);
     static LPCSTR Time;
     static LPCWSTR RestTime, AdministrationTime, WorkTime, DrivingTime, hUTCTime;
+    static ActivitiesTree* Tree;
     char timeBuffer[10];
     wchar_t timeBufferW[20];
     switch (msg)
@@ -188,7 +190,7 @@ LRESULT CALLBACK ActivitiesWndProc(HWND hParentWindow, UINT msg, WPARAM wParam, 
                 ((LPCREATESTRUCT)lParam)->hInstance, TreeWndProc, TEXT("TreeWindow"), NULL, CS_HREDRAW | CS_VREDRAW);
             RegisterClass(&hTreeAttr);
 
-            hTree = CreateWindow(TEXT("TreeWindow"), TEXT("TreeWindow"), WS_CHILD | WS_VISIBLE | WS_BORDER,
+            hTree = CreateWindowEx(0, WC_TREEVIEW, L"", WS_CHILD | WS_VISIBLE | WS_BORDER | TVS_HASLINES | TVS_HASBUTTONS,
                 0, 0, 0, 0, hParentWindow, NULL, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
 
             Day = CreateWindowA("STATIC", Time, WS_CHILD | WS_VISIBLE,
@@ -254,9 +256,12 @@ LRESULT CALLBACK ActivitiesWndProc(HWND hParentWindow, UINT msg, WPARAM wParam, 
         case ID_ACTIVITIESTAB_UPDATE:
         {
             activities.~Activities();
+            if (Tree) delete Tree;
             uint16_t end = (activitiesDATAptr[0] << 8) | activitiesDATAptr[1];
             uint16_t start = (activitiesDATAptr[2] << 8) | activitiesDATAptr[3];
             activities.readActivities(activitiesDATAptr+4, end, start);
+            Tree = new ActivitiesTree(hTree, activities);
+            Tree->CreateTree();
             SendMessage(hParentWindow, ID_ACTIVITIESTAB_UPDATE_TIME, 0, 0);
             SendMessage(hDraw, ID_ACTIVITIESTAB_DRAW_DAY, 0, (LPARAM)activities.GetNextPtrWrp()); // we send pointer to the data that will be drawn
             break;

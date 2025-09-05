@@ -3,7 +3,9 @@
     "xlocinfo": "cpp",
     "xstring": "cpp",
     "charconv": "cpp",
-    "xmemory": "cpp"
+    "xmemory": "cpp",
+    "xtr1common": "cpp",
+    "unordered_map": "cpp"
   },
   "C_Cpp.default.includePath": [
     "${workspaceFolder}//include",
