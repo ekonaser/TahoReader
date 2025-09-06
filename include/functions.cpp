@@ -6,6 +6,7 @@ HMENU MainMenu;
 ID idData;
 BYTE* activitiesDATAptr = nullptr;
 BYTE* vehiclesDATAptr = nullptr;
+Vehicles vehicles(nullptr);
 
 int UTC = 0;
 
@@ -114,6 +115,8 @@ void ReadTachographCard()
 
     reader.SelectFile({0x00, 0xA4, 0x02, 0x0C, 0x02, 0x05, 0x05});
     vehiclesDATAptr = reader.ReadData(6107); // hmm, something fishy is going on here
+
+    vehicles.readVehicles(vehiclesDATAptr);
 }
 
 void RedrawBitMap(int left, int top, int right, int bottom, HDC& memDC, HWND& Window)

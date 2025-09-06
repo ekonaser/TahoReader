@@ -19,7 +19,6 @@ LRESULT CALLBACK ActivitiesWndProc(HWND hParentWindow, UINT msg, WPARAM wParam, 
 {
     static HWND hDraw, hTree, Day, Rest, Administration, Work, Driving, hUTCLButton, hUTCRButton, hUTCString;
     static Activities activities(nullptr, 0, 0);
-    static Vehicles vehicles(nullptr); // u have to move this object to other WND proc - vehicleswndproc or consider global
     static LPCSTR Time;
     static LPCWSTR RestTime, AdministrationTime, WorkTime, DrivingTime, hUTCTime;
     static ActivitiesTree* Tree;
@@ -45,7 +44,8 @@ LRESULT CALLBACK ActivitiesWndProc(HWND hParentWindow, UINT msg, WPARAM wParam, 
                 ((LPCREATESTRUCT)lParam)->hInstance, TreeWndProc, TEXT("TreeWindow"), NULL, CS_HREDRAW | CS_VREDRAW);
             RegisterClass(&hTreeAttr);
 
-            hTree = CreateWindowEx(0, WC_TREEVIEW, L"", WS_CHILD | WS_VISIBLE | WS_BORDER | TVS_HASLINES | TVS_HASBUTTONS,
+            hTree = CreateWindowEx(0, WC_TREEVIEW, L"",
+                WS_CHILD | WS_VISIBLE | WS_BORDER | TVS_HASLINES | TVS_HASBUTTONS | WS_TABSTOP | TVS_SHOWSELALWAYS,
                 0, 0, 0, 0, hParentWindow, NULL, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
 
             Day = CreateWindowA("STATIC", Time, WS_CHILD | WS_VISIBLE,
@@ -115,7 +115,6 @@ LRESULT CALLBACK ActivitiesWndProc(HWND hParentWindow, UINT msg, WPARAM wParam, 
             uint16_t end = (activitiesDATAptr[0] << 8) | activitiesDATAptr[1];
             uint16_t start = (activitiesDATAptr[2] << 8) | activitiesDATAptr[3];
             activities.readActivities(activitiesDATAptr+4, end, start);
-            vehicles.readVehicles(vehiclesDATAptr); // delete this line after moving it to another wndproc
             Tree = new ActivitiesTree(hTree, activities);
             Tree->CreateTree();
             Tree->UpdateTreeVehicles(vehicles.ptrWrp);
@@ -126,6 +125,7 @@ LRESULT CALLBACK ActivitiesWndProc(HWND hParentWindow, UINT msg, WPARAM wParam, 
         case ID_ACTIVITIESTAB_RESET:
         {
             activities.~Activities();
+            SendMessage(hTree, TVM_DELETEITEM, 0, (LPARAM)TVI_ROOT);
             break;
         }
         case ID_ACTIVITIESTAB_UPDATE_TIME:
@@ -204,6 +204,25 @@ LRESULT CALLBACK ActivitiesWndProc(HWND hParentWindow, UINT msg, WPARAM wParam, 
             if (UTC < -12) UTC = 14;
             if (UTC > 14) UTC = -12;
             SendMessage(hDraw, ID_ACTIVITIESTAB_DRAW_DAY, 0, (LPARAM)activities.GetNextPtrWrp());
+            break;
+        }
+        case WM_NOTIFY:
+        {
+            LPNMHDR nmhdr = (LPNMHDR)lParam;
+            if (nmhdr->hwndFrom == hTree) // if change came from hTree window
+            {
+                switch (nmhdr->code)
+                {
+                    case TVN_SELCHANGED:
+                    {
+                        NMTREEVIEW* ptv = (NMTREEVIEW*)lParam; // pointer to the notification message
+                        activities.index = (int)ptv->itemNew.lParam;
+                        SendMessage(hDraw, ID_ACTIVITIESTAB_DRAW_DAY, 0, (LPARAM)activities.GetNextPtrWrp());
+                        SendMessage(hParentWindow, ID_ACTIVITIESTAB_UPDATE_TIME, 0, 0);
+                        break;
+                    }
+                }
+            }
             break;
         }
         default:

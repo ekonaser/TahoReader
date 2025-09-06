@@ -18,6 +18,7 @@ extern HMENU MainMenu;
 extern ID idData;
 extern BYTE* activitiesDATAptr;
 extern BYTE* vehiclesDATAptr;
+extern Vehicles vehicles;
 
 extern int UTC;
 

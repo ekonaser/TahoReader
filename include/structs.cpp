@@ -250,6 +250,7 @@ void ActivitiesTree::CreateTree()
             time = _byteswap_ulong(activities.ptrWrp[i]->header.time);
             DateStamp(time, buffer);
             MultiByteToWideChar(CP_ACP, 0, buffer, -1, bufferW, 11);
+            tvis.item.mask = TVIF_TEXT | TVIF_PARAM; // text label | we are providing additional data like lParam
             tvis.item.pszText = bufferW;
             tvis.item.lParam = i;
             days[i] = TreeView_InsertItem(hWindow, &tvis);
