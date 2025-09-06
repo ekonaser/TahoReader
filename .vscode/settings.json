@@ -5,7 +5,13 @@
     "charconv": "cpp",
     "xmemory": "cpp",
     "xtr1common": "cpp",
-    "unordered_map": "cpp"
+    "unordered_map": "cpp",
+    "initializer_list": "cpp",
+    "list": "cpp",
+    "vector": "cpp",
+    "xhash": "cpp",
+    "xutility": "cpp",
+    "utility": "cpp"
   },
   "C_Cpp.default.includePath": [
     "${workspaceFolder}//include",

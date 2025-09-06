@@ -1,8 +1,10 @@
 #pragma once
 
 #include <Windows.h>
+#include <CommCtrl.h>
 #include <stdio.h>
 #include <stdint.h>
+#include <unordered_map>
 
 #pragma pack(push, 1)
 struct ID {
@@ -91,4 +93,50 @@ struct DrawingBrush
     void CreateColor(uint8_t a = 0x00, uint8_t b = 0x00, uint8_t c = 0x00);
     void DrawOneDay(BYTE* ptr, int counter, ActivityData& pData);
     ~DrawingBrush();
+};
+
+struct uint24_t
+{
+    uint8_t bytes[3];
+};
+
+struct Registration
+{
+    char chr[14]; // the last is reserved for '\0'
+};
+
+#pragma pack(push, 1)
+struct Vehicle
+{
+    uint16_t no;
+    uint24_t startKM;
+    uint24_t endKM;
+    uint32_t startTime;
+    uint32_t endTime;
+    uint16_t delimiter;
+    Registration registration;
+};
+#pragma pack(pop)
+
+struct Vehicles
+{
+    Vehicle* ptrWrp = new Vehicle[197];
+    Vehicles(BYTE* ptr);
+    void readVehicles(BYTE* ptr);
+    ~Vehicles();
+};
+
+struct ActivitiesTree
+{
+    HTREEITEM Root;
+    HTREEITEM* days;
+    std::unordered_map<uint32_t, HTREEITEM*> treemap;
+    HWND& hWindow;
+    Activities& activities;
+    TVINSERTSTRUCT tvis{}; // tree view insert struct
+    char buffer[11];
+    wchar_t bufferW[20];
+    ActivitiesTree(HWND& hTreeWindow, Activities& ActAdd);
+    void CreateTree();
+    void UpdateTreeVehicles(Vehicle* ptr);
 };

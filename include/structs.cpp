@@ -1,3 +1,6 @@
+#define UNICODE
+#define _UNICODE
+
 #include "structs.hpp"
 #include "functions.hpp"
 
@@ -202,4 +205,96 @@ void DrawingBrush::DrawOneDay(BYTE* ptr, int counter, ActivityData& pData) {
 
 DrawingBrush::~DrawingBrush() {
     if (color) DeleteObject(color);
+}
+
+void Vehicles::readVehicles(BYTE* ptr)
+{
+    int no = 6107, i = 0;
+    while (no)
+    {
+        memcpy(&ptrWrp[i], ptr, 31);
+        ptrWrp[i].registration.chr[13] = '\0';
+        i++;
+        ptr += 31;
+        no -= 31;
+    }
+}
+
+Vehicles::Vehicles(BYTE* ptr)
+{
+    if (ptr) readVehicles(ptr);
+}
+
+Vehicles::~Vehicles()
+{
+    delete[] ptrWrp;
+}
+
+ActivitiesTree::ActivitiesTree(HWND& hTreeWindow, Activities& ActAdd) : hWindow(hTreeWindow), activities(ActAdd)
+{
+    days = new HTREEITEM[activities.lastIndex+1];
+    tvis.hParent = TVI_ROOT;
+    tvis.item.mask = TVIF_TEXT;
+    tvis.item.pszText = TEXT("Daily Activities");
+    Root = TreeView_InsertItem(hWindow, &tvis);
+}
+
+void ActivitiesTree::CreateTree()
+{
+    uint32_t time;
+    tvis.hParent = Root;
+    for (int i = 0; i < activities.lastIndex+1; i++)
+    {
+        if (activities.ptrWrp[i])
+        {
+            time = _byteswap_ulong(activities.ptrWrp[i]->header.time);
+            DateStamp(time, buffer);
+            MultiByteToWideChar(CP_ACP, 0, buffer, -1, bufferW, 11);
+            tvis.item.pszText = bufferW;
+            tvis.item.lParam = i;
+            days[i] = TreeView_InsertItem(hWindow, &tvis);
+
+            treemap.insert({time, &days[i]});
+
+            tvis.hParent = days[i];
+            wsprintf(bufferW, L"km: %i", _byteswap_ushort(activities.ptrWrp[i]->header.km));
+            tvis.item.pszText = bufferW;
+            TreeView_InsertItem(hWindow, &tvis);
+            
+            tvis.hParent = Root;
+        }
+    }
+    TreeView_Expand(hWindow, Root, TVE_EXPAND);
+}
+
+void ActivitiesTree::UpdateTreeVehicles(Vehicle* ptr)
+{
+    /* method is specifically designed to take in vehicles DATA Wrapper Ptr */
+    if (ptr)
+    {
+        for (int i = 0; i < 197; i++)
+        {
+            int num = _byteswap_ulong(ptr[i].startTime);
+            auto it = treemap.find(num - (num % 86400));
+            if (it != treemap.end())
+            {
+                tvis.hParent = *(it->second);
+                MultiByteToWideChar(CP_ACP, 0, ptr[i].registration.chr, -1, bufferW, 20);
+                tvis.item.pszText = bufferW;
+                HTREEITEM hVehicleNode = TreeView_InsertItem(hWindow, &tvis);
+
+                tvis.hParent = hVehicleNode;
+
+                wsprintf(bufferW, L"Start km: %d",
+                    (ptr[i].startKM.bytes[0] << 16) | (ptr[i].startKM.bytes[1] << 8) | ptr[i].startKM.bytes[2]);
+                tvis.item.pszText = bufferW;
+                TreeView_InsertItem(hWindow, &tvis);
+                
+                wsprintf(bufferW, L"End km: %d",
+                    (ptr[i].endKM.bytes[0] << 16) | (ptr[i].endKM.bytes[1] << 8) | ptr[i].endKM.bytes[2]);
+                tvis.item.pszText = bufferW;
+                TreeView_InsertItem(hWindow, &tvis);
+            }
+        }
+    }
 }

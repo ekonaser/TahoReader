@@ -1,9 +1,7 @@
 #include "activitieswndproc.hpp"
 #include "structs.hpp"
 #include "mainwndproc.hpp"
-#include "tree.cpp"
-
-#define MIN(a, b) ((a) < (b) ? (a) : (b))
+#include "drawwndproc.hpp"
 
 LRESULT CALLBACK TreeWndProc(HWND hParentWindow, UINT msg, WPARAM wParam, LPARAM lParam)
 {
@@ -17,154 +15,11 @@ LRESULT CALLBACK TreeWndProc(HWND hParentWindow, UINT msg, WPARAM wParam, LPARAM
     return 0;
 }
 
-LRESULT CALLBACK DrawWndProc(HWND hParentWindow, UINT msg, WPARAM wParam, LPARAM lParam)
-{
-    static HDC memDC;
-    static HBITMAP bitmap;
-    static HFONT hFont;
-    static SCROLLINFO si;
-    static DailyWrapper* CurrentDay = nullptr;
-    static ActivityData pData{};
-    static DrawingBrush* painter;
-    switch (msg)
-    {
-        case WM_CREATE:
-        {
-            HDC hdc = GetDC(hParentWindow);
-
-            memDC = CreateCompatibleDC(hdc);
-            bitmap = CreateCompatibleBitmap(hdc, 800, 14400);
-            SelectObject(memDC, bitmap);
-            ReleaseDC(hParentWindow, hdc);
-
-            hFont = CreateFont(
-                10,
-                5, 0, 0, FW_THIN,
-                FALSE, FALSE, FALSE,
-                DEFAULT_CHARSET,
-                OUT_DEFAULT_PRECIS,
-                CLIP_DEFAULT_PRECIS,
-                DEFAULT_QUALITY,
-                DEFAULT_PITCH | FF_DONTCARE,
-                TEXT("Arial")
-            );
-
-            painter = new DrawingBrush(memDC, hParentWindow);
-
-            SelectObject(memDC, hFont); // we set font of our memDC
-
-            RedrawBitMap(0, 0, 800, 14400, memDC, hParentWindow); // one time static width
-
-            si = {0};
-            si.fMask = SIF_PAGE | SIF_POS | SIF_RANGE;
-            si.nMax = 14400;
-            si.nMin = 0;
-            si.nPage = 800;
-            si.nPos = 0;
-            si.cbSize = sizeof(si);
-            SetScrollInfo(hParentWindow, SB_VERT, &si, TRUE);
-            
-            break;
-        }
-        case WM_VSCROLL:
-        {
-            GetScrollInfo(hParentWindow, SB_VERT, &si);
-            int prevPos = si.nPos;
-            switch (LOWORD(wParam))
-            {
-                case SB_THUMBTRACK: si.nPos = (HIWORD(wParam) / 800) * 800; break;
-            }
-
-            SetScrollInfo(hParentWindow, SB_VERT, &si, TRUE);
-
-            if (prevPos != si.nPos)
-            {
-                InvalidateRect(hParentWindow, NULL, TRUE);
-            }
-
-            break;
-        }
-        case WM_PAINT:
-        {
-            PAINTSTRUCT ps;
-            HDC hdc = BeginPaint(hParentWindow, &ps);
-            RECT hParentWindowSize;
-            GetClientRect(hParentWindow, &hParentWindowSize);
-            
-            int scrollOffset = MIN(si.nPos, 14400 - hParentWindowSize.bottom);
-
-            BitBlt(hdc, 0, 0, hParentWindowSize.right, hParentWindowSize.bottom, memDC, 0, scrollOffset, SRCCOPY);
-
-            EndPaint(hParentWindow, &ps);
-            break;
-        }
-        case WM_SIZE:
-        {
-            RECT hParentWindowSize;
-            GetClientRect(hParentWindow, &hParentWindowSize);
-            int width = hParentWindowSize.right;
-            int height = hParentWindowSize.bottom;
-
-            DeleteObject(bitmap); // so it doesnt pollute memory
-
-            HDC hdc = GetDC(hParentWindow);
-            bitmap = CreateCompatibleBitmap(hdc, width, 14400);
-            SelectObject(memDC, bitmap);
-            ReleaseDC(hParentWindow, hdc);
-
-            RedrawBitMap(0, 0, width, 14400, memDC, hParentWindow);
-            HWND hParent = GetParent(hParentWindow);
-            pData = {0,0,0,0,0,0};
-
-            if (CurrentDay && _byteswap_ushort(CurrentDay->header.currLength) > 14)
-            {
-                painter->DrawOneDay(CurrentDay->ptr, _byteswap_ushort(CurrentDay->header.currLength) - 14, pData);
-                SendMessage(hParent, ID_ACTIVITIESTAB_UPDATE_ACTIVITIES, 0, (LPARAM)&pData);
-            }
-            SendMessage(hParent, ID_ACTIVITIESTAB_UPDATE_ACTIVITIES, 0, (LPARAM)&pData);
-            InvalidateRect(hParentWindow, NULL, TRUE);
-            break;
-        }
-        case WM_DESTROY:
-        {
-            // for correctly releasing/deleting memory
-            DeleteObject(bitmap);
-            DeleteDC(memDC);
-            DeleteObject(hFont);
-            delete painter;
-            break;
-        }
-        case ID_ACTIVITIESTAB_DRAW_DAY:
-        {
-            CurrentDay = (DailyWrapper*)lParam;
-            RECT hParentWindowSize;
-            GetClientRect(hParentWindow, &hParentWindowSize);
-            int width = hParentWindowSize.right - hParentWindowSize.left;
-            LPARAM sizeParam = MAKELPARAM(width, 14400);
-            SendMessage(hParentWindow, WM_SIZE, 0, sizeParam);
-            break;
-        }
-        case ID_ACTIVITIESTAB_RESET:
-        {
-            CurrentDay = nullptr;
-            RECT hParentWindowSize;
-            GetClientRect(hParentWindow, &hParentWindowSize);
-            LPARAM sizeParam = MAKELPARAM(hParentWindowSize.right, 14400);
-            SendMessage(hParentWindow, WM_SIZE, 0, sizeParam);
-            break;
-        }
-        default:
-        {
-            return DefWindowProc(hParentWindow, msg, wParam, lParam);
-        }
-    }
-    return 0;
-}
-
 LRESULT CALLBACK ActivitiesWndProc(HWND hParentWindow, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     static HWND hDraw, hTree, Day, Rest, Administration, Work, Driving, hUTCLButton, hUTCRButton, hUTCString;
     static Activities activities(nullptr, 0, 0);
+    static Vehicles vehicles(nullptr); // u have to move this object to other WND proc - vehicleswndproc or consider global
     static LPCSTR Time;
     static LPCWSTR RestTime, AdministrationTime, WorkTime, DrivingTime, hUTCTime;
     static ActivitiesTree* Tree;
@@ -260,8 +115,10 @@ LRESULT CALLBACK ActivitiesWndProc(HWND hParentWindow, UINT msg, WPARAM wParam, 
             uint16_t end = (activitiesDATAptr[0] << 8) | activitiesDATAptr[1];
             uint16_t start = (activitiesDATAptr[2] << 8) | activitiesDATAptr[3];
             activities.readActivities(activitiesDATAptr+4, end, start);
+            vehicles.readVehicles(vehiclesDATAptr); // delete this line after moving it to another wndproc
             Tree = new ActivitiesTree(hTree, activities);
             Tree->CreateTree();
+            Tree->UpdateTreeVehicles(vehicles.ptrWrp);
             SendMessage(hParentWindow, ID_ACTIVITIESTAB_UPDATE_TIME, 0, 0);
             SendMessage(hDraw, ID_ACTIVITIESTAB_DRAW_DAY, 0, (LPARAM)activities.GetNextPtrWrp()); // we send pointer to the data that will be drawn
             break;

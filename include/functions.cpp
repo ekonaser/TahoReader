@@ -107,10 +107,13 @@ void ReadTachographCard()
 
     reader.SelectFile({0x00, 0xA4, 0x02, 0x0C, 0x02, 0x05, 0x20}); // selecting ID section
     memcpy(&idData, reader.ReadData(143), 143);
+    idData.nullterminator();
 
     reader.SelectFile({0x00, 0xA4, 0x02, 0x0C, 0x02, 0x05, 0x04});
     activitiesDATAptr = reader.ReadData(13780);
-    idData.nullterminator();
+
+    reader.SelectFile({0x00, 0xA4, 0x02, 0x0C, 0x02, 0x05, 0x05});
+    vehiclesDATAptr = reader.ReadData(6107); // hmm, something fishy is going on here
 }
 
 void RedrawBitMap(int left, int top, int right, int bottom, HDC& memDC, HWND& Window)
