@@ -99,11 +99,14 @@ void FlushMemory()
     SendMessage(hWndtoDrawProc, ID_ACTIVITIESTAB_RESET, 0, 0);
 }
 
-void ReadTachographCard()
+int ReadTachographCard()
 {
-    FlushMemory();
-
     TahoReader reader;
+    
+    if (reader.CheckStatus()) return -1;
+    
+    FlushMemory();
+    
     reader.SelectFile({0x00, 0xA4, 0x04, 0x0C, 0x06, 0xFF, 0x54, 0x41, 0x43, 0x48, 0x4F}); // selecting TAHO app
 
     reader.SelectFile({0x00, 0xA4, 0x02, 0x0C, 0x02, 0x05, 0x20}); // selecting ID section
@@ -117,6 +120,8 @@ void ReadTachographCard()
     vehiclesDATAptr = reader.ReadData(6107); // hmm, something fishy is going on here
 
     vehicles.readVehicles(vehiclesDATAptr);
+
+    return 0;
 }
 
 void RedrawBitMap(int left, int top, int right, int bottom, HDC& memDC, HWND& Window)

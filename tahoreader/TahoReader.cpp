@@ -3,10 +3,18 @@
 #include "functions.hpp"
 
 TahoReader::TahoReader() {
-    SCardEstablishContext(SCARD_SCOPE_USER, NULL, NULL, &cardContext);
-    SCardListReaders(cardContext, NULL, (LPTSTR)&readers, &readerNameBufferSize);
-    SCardConnect(cardContext, readers, SCARD_SHARE_SHARED, SCARD_PROTOCOL_T0 | SCARD_PROTOCOL_T1, &cardHandle, &activeProtocol);
+    result = SCardEstablishContext(SCARD_SCOPE_USER, NULL, NULL, &cardContext);
+    if (result != SCARD_S_SUCCESS) status = TRUE;
+    result = SCardListReaders(cardContext, NULL, (LPTSTR)&readers, &readerNameBufferSize);
+    if (result != SCARD_S_SUCCESS) status = TRUE;
+    result = SCardConnect(cardContext, readers, SCARD_SHARE_SHARED, SCARD_PROTOCOL_T0 | SCARD_PROTOCOL_T1, &cardHandle, &activeProtocol);
+    if (result != SCARD_S_SUCCESS) status = TRUE;
     choosenProtocol = getProtocol(activeProtocol);
+}
+
+bool TahoReader::CheckStatus()
+{
+    return status;
 }
 
 TahoReader::~TahoReader() {
@@ -26,6 +34,7 @@ void TahoReader::SelectFile(const BYTE(&cmd)[N]) {
 template void TahoReader::SelectFile<11>(const BYTE(&cmd)[11]);
 
 BYTE* TahoReader::ReadData(int length) {
+
     BYTE* ptr = new BYTE[length];
     int currentlyRead = 0;
     Iterator1023 it(length);

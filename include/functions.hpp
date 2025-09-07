@@ -25,7 +25,7 @@ extern int UTC;
 const SCARD_IO_REQUEST* getProtocol(DWORD activeProtocol);
 void DateStamp(uint32_t epoch, char* buffer, char mark = '-');
 void CreateMainMenu();
-void ReadTachographCard();
+int ReadTachographCard();
 void SetTabNames(TCITEM tci, HWND TabControl, LPWSTR text, int noTab);
 void SetWindowAttr(WNDCLASS& wc, HBRUSH color, LPCWSTR cursor, LPCWSTR icon, HINSTANCE hInstance, WNDPROC func, LPCWSTR classname, LPCWSTR menu, UINT style);
 void RedrawBitMap(int left, int top, int right, int bottom, HDC& memDC, HWND& Window);

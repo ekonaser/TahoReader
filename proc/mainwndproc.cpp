@@ -85,9 +85,10 @@ LRESULT CALLBACK MainWndProc(HWND hMainWindow, UINT msg, WPARAM wParam, LPARAM l
             {
                 case VK_F5:
                 {
-                    ReadTachographCard();
-                    SendMessage(IDTab, ID_IDTAB_UPDATE, 0, 0);
-                    SendMessage(ActivitiesTab, ID_ACTIVITIESTAB_UPDATE, 0, 0);
+                    if (!ReadTachographCard()) {
+                        SendMessage(IDTab, ID_IDTAB_UPDATE, 0, 0);
+                        SendMessage(ActivitiesTab, ID_ACTIVITIESTAB_UPDATE, 0, 0);
+                    }
                     break;
                 }
                 case VK_PRIOR:
@@ -114,9 +115,10 @@ LRESULT CALLBACK MainWndProc(HWND hMainWindow, UINT msg, WPARAM wParam, LPARAM l
                 }
                 case 201:
                 {
-                    ReadTachographCard();
-                    SendMessage(IDTab, ID_IDTAB_UPDATE, 0, 0);
-                    SendMessage(ActivitiesTab, ID_ACTIVITIESTAB_UPDATE, 0, 0);
+                    if (!ReadTachographCard()) {
+                        SendMessage(IDTab, ID_IDTAB_UPDATE, 0, 0);
+                        SendMessage(ActivitiesTab, ID_ACTIVITIESTAB_UPDATE, 0, 0);
+                    }
                     break;
                 }
                 case 202:

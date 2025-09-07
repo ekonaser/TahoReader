@@ -10,6 +10,7 @@ private:
     SCARDHANDLE cardHandle;
     LPTSTR readers = NULL;
     LONG result;
+    bool status = FALSE;
     BYTE apdu[7] = {0x00, 0xB0, 0x00, 0x00, 0x00, 0x00, 0x00}, buffer[1025];
     uint16_t blockRemainder;
     DWORD readerNameBufferSize = SCARD_AUTOALLOCATE, activeProtocol, bufferResponseLen;
@@ -21,6 +22,8 @@ public:
     void SelectFile(const BYTE(&cmd)[N]);
 
     BYTE* ReadData(int length);
+
+    bool CheckStatus();
 
     ~TahoReader();
 };
