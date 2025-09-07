@@ -59,6 +59,8 @@ LRESULT CALLBACK DrawWndProc(HWND hParentWindow, UINT msg, WPARAM wParam, LPARAM
             switch (LOWORD(wParam))
             {
                 case SB_THUMBTRACK: si.nPos = (HIWORD(wParam) / 800) * 800; break;
+                case SB_LINEUP: si.nPos -= 10; break;
+                case SB_LINEDOWN: si.nPos += 10; break;
             }
 
             SetScrollInfo(hParentWindow, SB_VERT, &si, TRUE);
