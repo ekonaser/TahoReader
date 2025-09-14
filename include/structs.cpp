@@ -4,21 +4,34 @@
 #include "structs.hpp"
 #include "functions.hpp"
 
-LPCSTR ID::BirthDay()
+LPCSTR IDNull::BirthDay()
 {
     static char buffer[10];
     sprintf(buffer, "%02X%02X.%02X.%02X", birthday[0], birthday[1], birthday[2], birthday[3]);
     return buffer;
 }
 
-LPCSTR ID::Date(uint32_t& variable)
+LPCSTR IDNull::Date(uint32_t& variable)
 {
     static char buffer[10];
     DateStamp(_byteswap_ulong(variable), buffer, '.');
     return buffer;
 }
 
-void ID::nullterminator()
+IDNull::IDNull(const ID& id)
+{
+    memcpy(cardNumber, id.cardNumber, 18); cardNumber[17] = '\0';
+    memcpy(issuer, id.issuer, 35); issuer[35] = '\0';
+    dateissued = id.dateissued;
+    startdate = id.startdate;
+    expirydate = id.expirydate;
+    memcpy(surname, id.surname, 36); surname[35] = '\0';
+    memcpy(name, id.name, 35); name[35] = '\0';
+    memcpy(birthday, id.birthday, 4); birthday[4] = '\0';
+    memcpy(country, id.country, 2); country[2] = '\0';
+}
+
+/*void ID::nullterminator()
 {
     cardNumber[17] = '\0';
     issuer[34] = '\0';
@@ -33,7 +46,7 @@ void ID::nullterminator()
     //birthday[1] -= 6 * (birthday[1] % 10);
     //birthday[2] -= 6 * (birthday[2] % 10);
     //birthday[3] -= 6 * (birthday[3] % 10);
-}
+}*/
 
 DailyWrapper::DailyWrapper(BYTE* block) {
     memcpy(&header, block, 14);
@@ -280,10 +293,17 @@ void ActivitiesTree::UpdateTreeVehicles(Vehicle* ptr)
             if (it != treemap.end())
             {
                 tvis.hParent = *(it->second);
+
+                tv.mask = TVIF_PARAM;
+                tv.hItem = *(it->second);
+                TreeView_GetItem(hWindow, &tv);
+                tvis.item.mask = TVIF_TEXT | TVIF_PARAM;
+                tvis.item.lParam = tv.lParam;
+
                 MultiByteToWideChar(CP_ACP, 0, ptr[i].registration.chr, -1, bufferW, 20);
                 tvis.item.pszText = bufferW;
                 HTREEITEM hVehicleNode = TreeView_InsertItem(hWindow, &tvis);
-
+                
                 tvis.hParent = hVehicleNode;
 
                 wsprintf(bufferW, L"Start km: %d",

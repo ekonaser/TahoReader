@@ -1,11 +1,14 @@
 #include "functions.hpp"
 #include "TahoReader.hpp"
 #include "mainwndproc.hpp"
+#include <commdlg.h>
 
 HMENU MainMenu;
-ID idData;
+ID idData{};
+IDNull idDataNull{};
 BYTE* activitiesDATAptr = nullptr;
 BYTE* vehiclesDATAptr = nullptr;
+BYTE* cardCertDATAptr = nullptr;
 Vehicles vehicles(nullptr);
 
 int UTC = 0;
@@ -53,7 +56,8 @@ void CreateMainMenu(){
     HMENU Card = CreateMenu();
     HMENU Help = CreateMenu();
     
-    AppendMenu(Program, MF_STRING, 101, TEXT("Exit\tAlt+F4"));
+    AppendMenu(Program, MF_STRING, 101, TEXT("Save As"));
+    AppendMenu(Program, MF_STRING, 102, TEXT("Exit\tAlt+F4"));
     AppendMenu(MainMenu, MF_STRING | MF_POPUP, (UINT_PTR)(Program), TEXT("Program"));
 
     AppendMenu(Card, MF_STRING, 201, TEXT("Read card\tF5"));
@@ -90,13 +94,17 @@ void FlushMemory()
     activitiesDATAptr = nullptr;
     delete vehiclesDATAptr;
     vehiclesDATAptr = nullptr;
+    delete cardCertDATAptr;
+    cardCertDATAptr = nullptr;
     idData = {};
+    idDataNull = {};
 
     SendMessage(IDTab, ID_IDTAB_UPDATE, 0, 0);
     HWND hWndtoDrawProc = FindWindowEx(ActivitiesTab, NULL, TEXT("DrawWindow"), NULL);
     SendMessage(ActivitiesTab, ID_ACTIVITIESTAB_RESET, 0, 0);
     SendMessage(ActivitiesTab, ID_ACTIVITIESTAB_UPDATE_TIME, 0, 0);
     SendMessage(hWndtoDrawProc, ID_ACTIVITIESTAB_RESET, 0, 0);
+    SendMessage(CertTab, ID_CERTSTAB_UPDATE, 0, 0);
 }
 
 int ReadTachographCard()
@@ -106,12 +114,16 @@ int ReadTachographCard()
     if (reader.CheckStatus()) return -1;
     
     FlushMemory();
-    
+
     reader.SelectFile({0x00, 0xA4, 0x04, 0x0C, 0x06, 0xFF, 0x54, 0x41, 0x43, 0x48, 0x4F}); // selecting TAHO app
+
+    // Card Certificate
+    reader.SelectFile({0x00, 0xA4, 0x02, 0x0C, 0x02, 0xC1, 0x00});
+    cardCertDATAptr = reader.ReadData(194); // exactly 194
 
     reader.SelectFile({0x00, 0xA4, 0x02, 0x0C, 0x02, 0x05, 0x20}); // selecting ID section
     memcpy(&idData, reader.ReadData(143), 143);
-    idData.nullterminator();
+    idDataNull = IDNull(idData);
 
     reader.SelectFile({0x00, 0xA4, 0x02, 0x0C, 0x02, 0x05, 0x04});
     activitiesDATAptr = reader.ReadData(13780);
@@ -155,4 +167,34 @@ void RedrawBitMap(int left, int top, int right, int bottom, HDC& memDC, HWND& Wi
     }
 
     EndPaint(Window, &ps);
+}
+
+void WriteDDD(HWND& hWindow)
+{
+    OPENFILENAME file;
+    wchar_t SizeOfFile[260] = L"";
+
+    ZeroMemory(&file, sizeof(file));
+    file.lStructSize = sizeof(file);
+    file.hwndOwner = hWindow;
+    file.lpstrFile = SizeOfFile;
+    file.nMaxFile = sizeof(SizeOfFile) / sizeof(wchar_t);
+    file.lpstrFilter = L"DDD Files (*.ddd)\0*.ddd\0All Files (*.*)\0*.*\0";
+    file.nFilterIndex = 1;
+    file.lpstrDefExt = L"ddd";
+    file.Flags = OFN_PATHMUSTEXIST | OFN_OVERWRITEPROMPT;
+
+    if (GetSaveFileName(&file))
+    {
+        FILE* fp = _wfopen(file.lpstrFile, L"wb");
+        if (fp) // serious function is needed here!!!!!! u cant just write data as it is
+        // NAREDI DVA ID STRUCTA en ki iam original variable memberje drugi ki ima dodatne
+        // in samo referencira original
+        {
+            BYTE arr[5] = {0x05, 0x20, 0x00, 0x00, 0x8F};
+            fwrite(&arr, sizeof(arr), 1, fp);
+            fwrite(&idData, sizeof(idData), 1, fp);
+            fclose(fp);
+        }
+    }
 }

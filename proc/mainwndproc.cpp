@@ -1,14 +1,15 @@
 #include "mainwndproc.hpp"
 #include "idwndproc.hpp"
-#include "vehicleswndproc.hpp"
+#include "certwndproc.hpp"
 #include "activitieswndproc.hpp"
 #include "functions.hpp"
+#include <thread>
 
-HWND TabControl, IDTab, ActivitiesTab, VehiclesTab;
+HWND TabControl, IDTab, ActivitiesTab, CertTab;
 
 LRESULT CALLBACK MainWndProc(HWND hMainWindow, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-    const static WCHAR Tab1[] = L"ID", Tab2[] = L"Activities", Tab3[] = L"Vehicles";
+    const static WCHAR Tab1[] = L"ID", Tab2[] = L"Activities", Tab3[] = L"Certificates";
     static TCITEM tci = {};
     switch (msg)
     {
@@ -33,7 +34,7 @@ LRESULT CALLBACK MainWndProc(HWND hMainWindow, UINT msg, WPARAM wParam, LPARAM l
             RegisterClass(&TabWindowsCl);
 
             SetWindowAttr(TabWindowsCl, (HBRUSH)(COLOR_WINDOW), IDC_ARROW, NULL,
-                ((LPCREATESTRUCT)lParam)->hInstance, VehiclesWndProc, Tab3, NULL, CS_HREDRAW | CS_VREDRAW);
+                ((LPCREATESTRUCT)lParam)->hInstance, CertificatesWndProc, Tab3, NULL, CS_HREDRAW | CS_VREDRAW);
             RegisterClass(&TabWindowsCl);
 
             GetClientRect(TabControl, &TabRect);
@@ -46,9 +47,9 @@ LRESULT CALLBACK MainWndProc(HWND hMainWindow, UINT msg, WPARAM wParam, LPARAM l
                 TabRect.left, TabRect.right + 40, TabRect.right - TabRect.left, TabRect.bottom - (TabRect.right + 40),
                 TabControl, (HMENU)ID_ACTIVITIESTAB, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
             
-            VehiclesTab = CreateWindowEx(0, Tab3, NULL, WS_CHILD,
+            CertTab = CreateWindowEx(0, Tab3, NULL, WS_CHILD,
                 TabRect.left, TabRect.right + 40, TabRect.right - TabRect.left, TabRect.bottom - (TabRect.right + 40),
-                TabControl, (HMENU)ID_VEHICLESTAB, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
+                TabControl, (HMENU)ID_CERTSTAB, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
             break;
         }
         case WM_NOTIFY:
@@ -58,7 +59,7 @@ LRESULT CALLBACK MainWndProc(HWND hMainWindow, UINT msg, WPARAM wParam, LPARAM l
                 int selectedtab = TabCtrl_GetCurSel(TabControl);
                 ShowWindow(IDTab, selectedtab == 0 ? SW_SHOW : SW_HIDE);
                 ShowWindow(ActivitiesTab, selectedtab == 1 ? SW_SHOW : SW_HIDE);
-                ShowWindow(VehiclesTab, selectedtab == 2 ? SW_SHOW : SW_HIDE);
+                ShowWindow(CertTab, selectedtab == 2 ? SW_SHOW : SW_HIDE);
             }
             break;
         }
@@ -75,7 +76,7 @@ LRESULT CALLBACK MainWndProc(HWND hMainWindow, UINT msg, WPARAM wParam, LPARAM l
 
             MoveWindow(IDTab, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, TRUE);
             MoveWindow(ActivitiesTab, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, TRUE);
-            MoveWindow(VehiclesTab, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, TRUE);
+            MoveWindow(CertTab, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, TRUE);
 
             break;
         }
@@ -85,10 +86,14 @@ LRESULT CALLBACK MainWndProc(HWND hMainWindow, UINT msg, WPARAM wParam, LPARAM l
             {
                 case VK_F5:
                 {
-                    if (!ReadTachographCard()) {
-                        SendMessage(IDTab, ID_IDTAB_UPDATE, 0, 0);
-                        SendMessage(ActivitiesTab, ID_ACTIVITIESTAB_UPDATE, 0, 0);
-                    }
+                    std::thread([]()
+                    {
+                        if (!ReadTachographCard()) {
+                            SendMessage(IDTab, ID_IDTAB_UPDATE, 0, 0);
+                            SendMessage(ActivitiesTab, ID_ACTIVITIESTAB_UPDATE, 0, 0);
+                            SendMessage(CertTab, ID_CERTSTAB_UPDATE, 0, 0);
+                        }
+                    }).detach();
                     break;
                 }
                 case VK_PRIOR:
@@ -110,15 +115,24 @@ LRESULT CALLBACK MainWndProc(HWND hMainWindow, UINT msg, WPARAM wParam, LPARAM l
             {
                 case 101:
                 {
+                    WriteDDD(hMainWindow);
+                    break;
+                }
+                case 102:
+                {
                     PostQuitMessage(0);
                     break;
                 }
                 case 201:
                 {
-                    if (!ReadTachographCard()) {
-                        SendMessage(IDTab, ID_IDTAB_UPDATE, 0, 0);
-                        SendMessage(ActivitiesTab, ID_ACTIVITIESTAB_UPDATE, 0, 0);
-                    }
+                    std::thread([]()
+                    {
+                        if (!ReadTachographCard()) {
+                            SendMessage(IDTab, ID_IDTAB_UPDATE, 0, 0);
+                            SendMessage(ActivitiesTab, ID_ACTIVITIESTAB_UPDATE, 0, 0);
+                            SendMessage(CertTab, ID_CERTSTAB_UPDATE, 0, 0);
+                        }
+                    }).detach();
                     break;
                 }
                 case 202:

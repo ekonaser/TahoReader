@@ -13,19 +13,43 @@ struct ID {
     uint32_t dateissued;
     uint32_t startdate;
     uint32_t expirydate;
-    byte date0;
+    byte datex01;
     char surname[36];
     char name[35];
     byte birthday[4];
-    char end1;
     char country[2];
-    char end2;
+};
+#pragma pack(pop)
 
-    void nullterminator();
+struct IDNull {
+    char cardNumber[18];
+    char issuer[36];
+    uint32_t dateissued;
+    uint32_t startdate;
+    uint32_t expirydate;
+    char surname[36]; // bcs last byte is 0x01 36th byte same doesnt apply for name!!!!!
+    char name[36];
+    byte birthday[5];
+    char country[3];
+
+    IDNull()
+    {
+        memset(this, 0, sizeof(IDNull));
+    }
+    IDNull(const ID& id);
 
     LPCSTR BirthDay();
-
     LPCSTR Date(uint32_t& variable);
+};
+
+#pragma pack(push, 1)
+struct ICC {
+    uint8_t clockstop;
+    byte cardExtendedSerialNumber[8];
+    byte cardApprovalNumber[8]; // default values 20 20 20 .. 20 - empty 'char'
+    byte cardPersonalizerID;
+    byte embedderIcAssemblerId[5];
+    byte icIdentifier[2];
 };
 #pragma pack(pop)
 
@@ -131,6 +155,7 @@ struct ActivitiesTree
     HTREEITEM Root;
     HTREEITEM* days;
     std::unordered_map<uint32_t, HTREEITEM*> treemap;
+    TVITEM tv{};
     HWND& hWindow;
     Activities& activities;
     TVINSERTSTRUCT tvis{}; // tree view insert struct

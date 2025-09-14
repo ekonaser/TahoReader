@@ -39,13 +39,13 @@ LRESULT CALLBACK IdCardProc(HWND hParentWindow, UINT msg, WPARAM wParam, LPARAM 
         }
         case ID_IDTAB_UPDATE:
         {
-            SetWindowTextA(Surname, idData.surname);
-            SetWindowTextA(Name, idData.name);
-            SetWindowTextA(Birthday, idData.BirthDay());
-            SetWindowTextA(StartDate, idData.Date(idData.startdate));
-            SetWindowTextA(EndDate, idData.Date(idData.expirydate));
-            SetWindowTextA(Issuer, idData.issuer);
-            SetWindowTextA(CardNumber, &idData.cardNumber[1]);
+            SetWindowTextA(Surname, idDataNull.surname);
+            SetWindowTextA(Name, idDataNull.name);
+            SetWindowTextA(Birthday, idDataNull.BirthDay());
+            SetWindowTextA(StartDate, idDataNull.Date(idData.startdate));
+            SetWindowTextA(EndDate, idDataNull.Date(idData.expirydate));
+            SetWindowTextA(Issuer, idDataNull.issuer);
+            SetWindowTextA(CardNumber, &idDataNull.cardNumber[1]);
             break;
         }
         default:
@@ -80,6 +80,7 @@ LRESULT CALLBACK IdWndProc(HWND hParentWindow, UINT msg, WPARAM wParam, LPARAM l
             RECT parentWindow;
             GetClientRect(hParentWindow, &parentWindow);
             MoveWindow(IDCard, (parentWindow.right - 420) / 2, (parentWindow.bottom - 220) / 2, 420, 220, TRUE);
+            break;
         }
         case ID_IDTAB_UPDATE:
         {
