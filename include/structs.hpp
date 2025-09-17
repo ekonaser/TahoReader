@@ -89,9 +89,9 @@ Struct holds list of activities by day wrapped in sub-struct DailyWrapper.
     int index = 0, lastIndex;
     DailyWrapper* ptrWrp[365] = {}; // pointer to wrapper currently all nullptr's
 
-    Activities(BYTE* ptr, uint16_t end, uint16_t start);
+    Activities(BYTE* ptr, int end, int start);
 
-    void readActivities(BYTE* ptr, uint16_t end, uint16_t start);
+    void readActivities(BYTE* ptr, int end, int start);
 
     DailyWrapper* GetNextPtrWrp();
 

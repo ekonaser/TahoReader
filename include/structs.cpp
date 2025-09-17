@@ -71,17 +71,20 @@ uint16_t Iterator1023::next() {
     }
 }
 
-Activities::Activities(BYTE* ptr, uint16_t end, uint16_t start) {
+Activities::Activities(BYTE* ptr, int end, int start) {
     readActivities(ptr, end, start);
 }
 
-void Activities::readActivities(BYTE* ptr, uint16_t end, uint16_t start) {
+void Activities::readActivities(BYTE* ptr, int end, int start) {
+    // pointers must be able to go into minus INT, thats why uint16_t is invalid
     int st = 0;
     while (start != end) {
         ptrWrp[st] = new DailyWrapper(ptr + start);
         start -= _byteswap_ushort(ptrWrp[st]->header.prevLength);
         st++;
-        if (start < 0) start += 13776;
+        if (start < 0){
+            start += 13776;
+        }
     }
     lastIndex = st;
 }

@@ -4,12 +4,14 @@
 
 LRESULT CALLBACK CertificatesWndProc(HWND hParentWindow, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-    static HWND CardCViewer;
+    static HWND ICCViewer, ICCWnd;
     switch (msg)
     {
         case WM_CREATE:
         {
-            CardCViewer = CreateWindowA("STATIC", "", WS_CHILD | WS_VISIBLE, 0, 0, 0, 0, hParentWindow, NULL,
+            ICCViewer = CreateWindowExA(0, "BUTTON", "ICC", WS_CHILD | WS_VISIBLE | BS_GROUPBOX, 0, 0, 0, 0, hParentWindow, NULL,
+                ((LPCREATESTRUCT)lParam)->hInstance, NULL); // decorative window
+            ICCWnd = CreateWindowA("STATIC", "", WS_CHILD | WS_VISIBLE, 0, 0, 0, 0, hParentWindow, NULL,
                 ((LPCREATESTRUCT)lParam)->hInstance, NULL);
             break;
         }
@@ -17,7 +19,8 @@ LRESULT CALLBACK CertificatesWndProc(HWND hParentWindow, UINT msg, WPARAM wParam
         {
             RECT hParentWindowSize;
             GetClientRect(hParentWindow, &hParentWindowSize);
-            MoveWindow(CardCViewer, 20, 20, hParentWindowSize.right - 40, (hParentWindowSize.bottom / 2) - 40, TRUE);
+            MoveWindow(ICCViewer, 20, 20, hParentWindowSize.right - 40, (hParentWindowSize.bottom / 2) - 40, TRUE);
+            MoveWindow(ICCWnd, 40, 40, hParentWindowSize.right - 80, (hParentWindowSize.bottom / 2) - 80, TRUE);
             break;
         }
         case ID_CERTSTAB_UPDATE:
@@ -31,11 +34,12 @@ LRESULT CALLBACK CertificatesWndProc(HWND hParentWindow, UINT msg, WPARAM wParam
                     sprintf(buffer, "%02X ", cardCertDATAptr[i]);
                     strcat(fullBuffer, buffer);
                 }
-                SetWindowTextA(CardCViewer, (LPCSTR)fullBuffer);
+                SetWindowTextA(ICCWnd, (LPCSTR)fullBuffer);
                 break;
             } else {
-                SetWindowTextA(CardCViewer, "");
+                SetWindowTextA(ICCWnd, "");
             }
+            break;
         }
         default:
         {

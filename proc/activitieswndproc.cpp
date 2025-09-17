@@ -112,8 +112,8 @@ LRESULT CALLBACK ActivitiesWndProc(HWND hParentWindow, UINT msg, WPARAM wParam, 
         {
             activities.~Activities();
             if (Tree) delete Tree;
-            uint16_t end = (activitiesDATAptr[0] << 8) | activitiesDATAptr[1];
-            uint16_t start = (activitiesDATAptr[2] << 8) | activitiesDATAptr[3];
+            int end = (activitiesDATAptr[0] << 8) | activitiesDATAptr[1];
+            int start = (activitiesDATAptr[2] << 8) | activitiesDATAptr[3];
             activities.readActivities(activitiesDATAptr+4, end, start);
             Tree = new ActivitiesTree(hTree, activities);
             Tree->CreateTree();
