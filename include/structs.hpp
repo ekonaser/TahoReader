@@ -54,6 +54,13 @@ struct ICC {
 #pragma pack(pop)
 
 #pragma pack(push, 1)
+struct IC {
+    uint32_t icSerialNumber;
+    BYTE icManufacturingReference[4];
+};
+#pragma pack(pop)
+
+#pragma pack(push, 1)
 struct Header {
     uint16_t prevLength;
     uint16_t currLength;

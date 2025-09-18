@@ -18,9 +18,11 @@ extern HMENU MainMenu;
 // if we wanna copy data in one shot 2 structs are needed original && with nullterms
 extern ID idData;
 extern IDNull idDataNull;
+extern IC ICData;
 extern BYTE* activitiesDATAptr;
 extern BYTE* vehiclesDATAptr;
 extern BYTE* cardCertDATAptr;
+extern BYTE* CACertDATAptr;
 extern Vehicles vehicles;
 
 extern int UTC;

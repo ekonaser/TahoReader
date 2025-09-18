@@ -6,9 +6,11 @@
 HMENU MainMenu;
 ID idData{};
 IDNull idDataNull{};
+IC ICData{};
 BYTE* activitiesDATAptr = nullptr;
 BYTE* vehiclesDATAptr = nullptr;
 BYTE* cardCertDATAptr = nullptr;
+BYTE* CACertDATAptr = nullptr;
 Vehicles vehicles(nullptr);
 
 int UTC = 0;
@@ -96,6 +98,9 @@ void FlushMemory()
     vehiclesDATAptr = nullptr;
     delete cardCertDATAptr;
     cardCertDATAptr = nullptr;
+    delete CACertDATAptr;
+    CACertDATAptr = nullptr;
+    memset(&ICData, 0, sizeof(IC));
     idData = {};
     idDataNull = {};
 
@@ -117,9 +122,16 @@ int ReadTachographCard()
 
     reader.SelectFile({0x00, 0xA4, 0x04, 0x0C, 0x06, 0xFF, 0x54, 0x41, 0x43, 0x48, 0x4F}); // selecting TAHO app
 
+    // IC Data
+    reader.SelectFile({0x00, 0xA4, 0x02, 0x0C, 0x02, 0x00, 0x05});
+    memcpy(&ICData, reader.ReadData(8), 8);
+
     // Card Certificate
     reader.SelectFile({0x00, 0xA4, 0x02, 0x0C, 0x02, 0xC1, 0x00});
     cardCertDATAptr = reader.ReadData(194); // exactly 194
+    // CA Certificate
+    reader.SelectFile({0x00, 0xA4, 0x02, 0x0C, 0x02, 0xC1, 0x08});
+    CACertDATAptr = reader.ReadData(194); // exactly 194
 
     reader.SelectFile({0x00, 0xA4, 0x02, 0x0C, 0x02, 0x05, 0x20}); // selecting ID section
     memcpy(&idData, reader.ReadData(143), 143);
