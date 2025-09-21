@@ -9,7 +9,6 @@ TahoReader::TahoReader() {
     if (result != SCARD_S_SUCCESS) status = TRUE;
     result = SCardConnect(cardContext, readers, SCARD_SHARE_SHARED, SCARD_PROTOCOL_T0 | SCARD_PROTOCOL_T1, &cardHandle, &activeProtocol);
     if (result != SCARD_S_SUCCESS) status = TRUE;
-    choosenProtocol = getProtocol(activeProtocol);
 }
 
 bool TahoReader::CheckStatus()
@@ -18,7 +17,7 @@ bool TahoReader::CheckStatus()
 }
 
 TahoReader::~TahoReader() {
-    SCardDisconnect(cardHandle, SCARD_LEAVE_CARD);
+    SCardDisconnect(cardHandle, SCARD_UNPOWER_CARD); // u cant do leave card
     if (readers != NULL) {
         SCardFreeMemory(cardContext, readers);
     }
@@ -34,7 +33,7 @@ void TahoReader::SelectFile(const BYTE(&cmd)[N]) {
 template void TahoReader::SelectFile<11>(const BYTE(&cmd)[11]);
 
 BYTE* TahoReader::ReadData(int length) {
-
+    
     BYTE* ptr = new BYTE[length];
     int currentlyRead = 0;
     Iterator1023 it(length);

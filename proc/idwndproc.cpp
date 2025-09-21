@@ -3,13 +3,13 @@
 
 LRESULT CALLBACK IdCardProc(HWND hParentWindow, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-    static HWND G2, Name, Surname, Birthday, StartDate, EndDate, Issuer, CardNumber;
+    static HWND G2, Name, Surname, Birthday, StartDate, EndDate, Issuer, DriverLicense, CardNumber;
     switch (msg)
     {
         case WM_CREATE:
         {
-            G2 = CreateWindow(TEXT("STATIC"), TEXT("G2"), WS_CHILD | WS_VISIBLE,
-                68, 190, 20, 20, hParentWindow, NULL, NULL, NULL);
+            G2 = CreateWindow(TEXT("STATIC"), TEXT("G1|G2"), WS_CHILD | WS_VISIBLE,
+                58, 190, 50, 20, hParentWindow, NULL, NULL, NULL);
             Surname = CreateWindow(TEXT("STATIC"), NULL, WS_CHILD | WS_VISIBLE,
                 160, 50, 100, 20, hParentWindow, NULL, NULL, NULL);
             Name = CreateWindow(TEXT("STATIC"), NULL, WS_CHILD | WS_VISIBLE,
@@ -22,6 +22,8 @@ LRESULT CALLBACK IdCardProc(HWND hParentWindow, UINT msg, WPARAM wParam, LPARAM 
                 300, 110, 80, 20, hParentWindow, NULL, NULL, NULL);
             Issuer = CreateWindow(TEXT("STATIC"), NULL, WS_CHILD | WS_VISIBLE,
                 160, 130, 100, 20, hParentWindow, NULL, NULL, NULL);
+            DriverLicense = CreateWindow(TEXT("STATIC"), NULL, WS_CHILD | WS_VISIBLE,
+                160, 150, 130, 20, hParentWindow, NULL, NULL, NULL);
             CardNumber = CreateWindow(TEXT("STATIC"), NULL, WS_CHILD | WS_VISIBLE,
                 160, 170, 130, 20, hParentWindow, NULL, NULL, NULL);
             break;
@@ -45,6 +47,7 @@ LRESULT CALLBACK IdCardProc(HWND hParentWindow, UINT msg, WPARAM wParam, LPARAM 
             SetWindowTextA(StartDate, idDataNull.Date(idData.startdate));
             SetWindowTextA(EndDate, idDataNull.Date(idData.expirydate));
             SetWindowTextA(Issuer, idDataNull.issuer);
+            SetWindowTextA(DriverLicense, licenseDataNull.license);
             SetWindowTextA(CardNumber, &idDataNull.cardNumber[1]);
             break;
         }

@@ -43,6 +43,20 @@ struct IDNull {
 };
 
 #pragma pack(push, 1)
+struct DriverLicenseNULL {
+    byte delimiter1;
+    char country[36];
+    byte delimiter2;
+    char license[17];
+    DriverLicenseNULL()
+    {
+        memset(this, 0, sizeof(DriverLicenseNULL));
+    }
+    DriverLicenseNULL(BYTE* ptr);
+};
+#pragma pack(pop)
+
+#pragma pack(push, 1)
 struct ICC {
     uint8_t clockstop;
     byte cardExtendedSerialNumber[8];
@@ -50,13 +64,6 @@ struct ICC {
     byte cardPersonalizerID;
     byte embedderIcAssemblerId[5];
     byte icIdentifier[2];
-};
-#pragma pack(pop)
-
-#pragma pack(push, 1)
-struct IC {
-    uint32_t icSerialNumber;
-    BYTE icManufacturingReference[4];
 };
 #pragma pack(pop)
 

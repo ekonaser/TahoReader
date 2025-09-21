@@ -14,9 +14,30 @@ void TextFillWnd(HWND& wnd, BYTE* ptr)
     SetWindowTextA(wnd, (LPCSTR)fullBuffer);
 }
 
+void PrintClockStop(HWND& wnd, byte num)
+{
+    if (num == 1)
+    {
+        SetWindowTextA(wnd, "Clockstop allowed, no preferred level.");
+    } else if (num == 3) {
+        SetWindowTextA(wnd, "Clockstop allowed, high level preferred.");
+    } else if (num == 5) {
+        SetWindowTextA(wnd, "Clockstop allowed, low level preferred.");
+    } else if (num == 0) {
+        SetWindowTextA(wnd, "Clockstop not allowed.");
+    } else if (num == 2) {
+        SetWindowTextA(wnd, "Clockstop only allowed on high level.");
+    } else if (num == 4) {
+        SetWindowTextA(wnd, "Clockstop only allowed on low level.");
+    }
+}
+
 LRESULT CALLBACK CertificatesWndProc(HWND hParentWindow, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-    static HWND DecorationCard, DecorationCA, DecorationICC, DecorationIC, CardCWnd, CACWnd, ICSerialNumber, ICMR;
+    static HWND DecorationCard, DecorationCA, DecorationICC,
+        DecorationIC, CardCWnd, CACWnd, ICSerialNumber, ICMR, ClockStop,
+        ExtendedSerialNumber, CardApprovalNumber, PersonaliserID,
+        ICAssemblerID, ICIdentifier;
     char buffer[60]{};
     switch (msg)
     {
@@ -38,6 +59,18 @@ LRESULT CALLBACK CertificatesWndProc(HWND hParentWindow, UINT msg, WPARAM wParam
                 ((LPCREATESTRUCT)lParam)->hInstance, NULL);
             ICMR = CreateWindowA("STATIC", "", WS_CHILD | WS_VISIBLE, 0, 0, 0, 0, hParentWindow, NULL,
                 ((LPCREATESTRUCT)lParam)->hInstance, NULL);
+            ClockStop = CreateWindowA("STATIC", "", WS_CHILD | WS_VISIBLE, 0, 0, 0, 0, hParentWindow, NULL,
+                ((LPCREATESTRUCT)lParam)->hInstance, NULL);
+            ExtendedSerialNumber = CreateWindowA("STATIC", "", WS_CHILD | WS_VISIBLE, 0, 0, 0, 0, hParentWindow, NULL,
+                ((LPCREATESTRUCT)lParam)->hInstance, NULL);
+            CardApprovalNumber = CreateWindowA("STATIC", "", WS_CHILD | WS_VISIBLE, 0, 0, 0, 0, hParentWindow, NULL,
+                ((LPCREATESTRUCT)lParam)->hInstance, NULL);
+            PersonaliserID = CreateWindowA("STATIC", "", WS_CHILD | WS_VISIBLE, 0, 0, 0, 0, hParentWindow, NULL,
+                ((LPCREATESTRUCT)lParam)->hInstance, NULL);
+            ICAssemblerID = CreateWindowA("STATIC", "", WS_CHILD | WS_VISIBLE, 0, 0, 0, 0, hParentWindow, NULL,
+                ((LPCREATESTRUCT)lParam)->hInstance, NULL);
+            ICIdentifier = CreateWindowA("STATIC", "", WS_CHILD | WS_VISIBLE, 0, 0, 0, 0, hParentWindow, NULL,
+                ((LPCREATESTRUCT)lParam)->hInstance, NULL);
             break;
         }
         case WM_SIZE:
@@ -46,12 +79,18 @@ LRESULT CALLBACK CertificatesWndProc(HWND hParentWindow, UINT msg, WPARAM wParam
             GetClientRect(hParentWindow, &hParentWindowSize);
             MoveWindow(DecorationCard, 20, 20, hParentWindowSize.right - 40, 120, TRUE);
             MoveWindow(DecorationCA, 20, 180, hParentWindowSize.right - 40, 120, TRUE);
-            MoveWindow(DecorationICC, 20, 360, (hParentWindowSize.right / 2) - 40, 200, TRUE);
-            MoveWindow(DecorationIC, hParentWindowSize.right / 2, 360, (hParentWindowSize.right / 2) - 20, 200, TRUE);
+            MoveWindow(DecorationICC, 20, 360, (hParentWindowSize.right / 2) - 40, 220, TRUE);
+            MoveWindow(DecorationIC, hParentWindowSize.right / 2, 360, (hParentWindowSize.right / 2) - 20, 220, TRUE);
             MoveWindow(CardCWnd, 40, 40, hParentWindowSize.right - 80, 80, TRUE);
             MoveWindow(CACWnd, 40, 200, hParentWindowSize.right - 80, 80, TRUE);
             MoveWindow(ICSerialNumber, hParentWindowSize.right / 2 + 10, 390, 400, 20, TRUE);
             MoveWindow(ICMR, hParentWindowSize.right / 2 + 10, 420, 400, 20, TRUE);
+            MoveWindow(ClockStop, 30, 390, 400, 20, TRUE);
+            MoveWindow(ExtendedSerialNumber, 30, 420, 400, 20, TRUE);
+            MoveWindow(CardApprovalNumber, 30, 450, 400, 20, TRUE);
+            MoveWindow(PersonaliserID, 30, 480, 400, 20, TRUE);
+            MoveWindow(ICAssemblerID, 30, 510, 400, 20, TRUE);
+            MoveWindow(ICIdentifier, 30, 540, 400, 20, TRUE);
             break;
         }
         case ID_CERTSTAB_UPDATE:
@@ -60,19 +99,37 @@ LRESULT CALLBACK CertificatesWndProc(HWND hParentWindow, UINT msg, WPARAM wParam
             {
                 TextFillWnd(CardCWnd, cardCertDATAptr);
                 TextFillWnd(CACWnd, CACertDATAptr);
-                sprintf(buffer, "Serial number: %u", _byteswap_ulong(ICData.icSerialNumber));
+                sprintf(buffer, "Serial number: %u", (ICDataptr[0] << 24) | (ICDataptr[1] << 16) | (ICDataptr[2] << 8) | ICDataptr[3]);
                 SetWindowTextA(ICSerialNumber, buffer);
-                sprintf(buffer, "Manufacturing references: %02X %02X %02X %02X",
-                    ICData.icManufacturingReference[0],
-                    ICData.icManufacturingReference[1],
-                    ICData.icManufacturingReference[2],
-                    ICData.icManufacturingReference[3]);
+                sprintf(buffer, "Manufacturing references: %u", (ICDataptr[4] << 24) | (ICDataptr[5] << 16) | (ICDataptr[6] << 8) | ICDataptr[7]);
                 SetWindowTextA(ICMR, buffer);
+                PrintClockStop(ClockStop, ICCDataptr[0]);
+                sprintf(buffer, "Extended serial number: %02X %02X %02X %02X %02X %02X %02X %02X",
+                    ICCDataptr[1], ICCDataptr[2], ICCDataptr[3], ICCDataptr[4],
+                    ICCDataptr[5], ICCDataptr[6], ICCDataptr[7], ICCDataptr[8]);
+                SetWindowTextA(ExtendedSerialNumber, buffer);
+                sprintf(buffer, "Card approval number: %02X %02X %02X %02X %02X %02X %02X %02X",
+                    ICCDataptr[9], ICCDataptr[10], ICCDataptr[11], ICCDataptr[12],
+                    ICCDataptr[13], ICCDataptr[14], ICCDataptr[15], ICCDataptr[16]);
+                SetWindowTextA(CardApprovalNumber, buffer);
+                sprintf(buffer, "Personaliser ID: %02X", ICCDataptr[17]);
+                SetWindowTextA(PersonaliserID, buffer);
+                sprintf(buffer, "IC Assembler ID: %02X %02X %02X %02X %02X",
+                    ICCDataptr[18], ICCDataptr[19], ICCDataptr[20], ICCDataptr[21], ICCDataptr[22]);
+                SetWindowTextA(ICAssemblerID, buffer);
+                sprintf(buffer, "IC identifier: %02X %02X", ICCDataptr[23], ICCDataptr[24]);
+                SetWindowTextA(ICIdentifier, buffer);
             } else {
-                SetWindowTextA(CardCWnd, "");
-                SetWindowTextA(CACWnd, "");
-                SetWindowTextA(ICSerialNumber, "");
-                SetWindowTextA(ICMR, "");
+                SetWindowTextA(CardCWnd, NULL);
+                SetWindowTextA(CACWnd, NULL);
+                SetWindowTextA(ICSerialNumber, NULL);
+                SetWindowTextA(ICMR, NULL);
+                SetWindowTextA(ClockStop, NULL);
+                SetWindowTextA(ExtendedSerialNumber, NULL);
+                SetWindowTextA(CardApprovalNumber, NULL);
+                SetWindowTextA(PersonaliserID, NULL);
+                SetWindowTextA(ICAssemblerID, NULL);
+                SetWindowTextA(ICIdentifier, NULL);
             }
             break;
         }

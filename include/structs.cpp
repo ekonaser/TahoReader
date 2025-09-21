@@ -48,6 +48,14 @@ IDNull::IDNull(const ID& id)
     //birthday[3] -= 6 * (birthday[3] % 10);
 }*/
 
+DriverLicenseNULL::DriverLicenseNULL(BYTE* ptr)
+{
+    memcpy(&delimiter1, ptr, 1);
+    memcpy(&country, ptr+1, 35); country[35] = '\0';
+    memcpy(&delimiter2, ptr+36, 1);
+    memcpy(&license, ptr+37, 16); license[16] = '\0';
+}
+
 DailyWrapper::DailyWrapper(BYTE* block) {
     memcpy(&header, block, 14);
     ptr = block + 14;

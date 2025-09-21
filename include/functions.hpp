@@ -18,7 +18,13 @@ extern HMENU MainMenu;
 // if we wanna copy data in one shot 2 structs are needed original && with nullterms
 extern ID idData;
 extern IDNull idDataNull;
-extern IC ICData;
+extern byte* ICDataptr;
+extern byte* ICCDataptr;
+extern byte* DIR;
+extern byte* ATR;
+extern byte* EL; // extended length
+extern BYTE* driverLicenseDATAptr;
+extern DriverLicenseNULL licenseDataNull;
 extern BYTE* activitiesDATAptr;
 extern BYTE* vehiclesDATAptr;
 extern BYTE* cardCertDATAptr;
@@ -27,7 +33,6 @@ extern Vehicles vehicles;
 
 extern int UTC;
 
-const SCARD_IO_REQUEST* getProtocol(DWORD activeProtocol);
 void DateStamp(uint32_t epoch, char* buffer, char mark = '-');
 void CreateMainMenu();
 int ReadTachographCard();

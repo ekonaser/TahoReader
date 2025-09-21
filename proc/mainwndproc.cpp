@@ -138,6 +138,7 @@ LRESULT CALLBACK MainWndProc(HWND hMainWindow, UINT msg, WPARAM wParam, LPARAM l
                 case 202:
                 {
                     FlushMemory();
+                    break;
                 }
                 case 301:
                 {
