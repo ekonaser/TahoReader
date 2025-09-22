@@ -44,8 +44,8 @@ LRESULT CALLBACK IdCardProc(HWND hParentWindow, UINT msg, WPARAM wParam, LPARAM 
             SetWindowTextA(Surname, idDataNull.surname);
             SetWindowTextA(Name, idDataNull.name);
             SetWindowTextA(Birthday, idDataNull.BirthDay());
-            SetWindowTextA(StartDate, idDataNull.Date(idData.startdate));
-            SetWindowTextA(EndDate, idDataNull.Date(idData.expirydate));
+            SetWindowTextA(StartDate, idDataNull.Date(idDataNull.startdate));
+            SetWindowTextA(EndDate, idDataNull.Date(idDataNull.expirydate));
             SetWindowTextA(Issuer, idDataNull.issuer);
             SetWindowTextA(DriverLicense, licenseDataNull.license);
             SetWindowTextA(CardNumber, &idDataNull.cardNumber[1]);

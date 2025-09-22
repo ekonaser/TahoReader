@@ -18,35 +18,19 @@ LPCSTR IDNull::Date(uint32_t& variable)
     return buffer;
 }
 
-IDNull::IDNull(const ID& id)
+IDNull::IDNull(BYTE* ptr)
 {
-    memcpy(cardNumber, id.cardNumber, 18); cardNumber[17] = '\0';
-    memcpy(issuer, id.issuer, 35); issuer[35] = '\0';
-    dateissued = id.dateissued;
-    startdate = id.startdate;
-    expirydate = id.expirydate;
-    memcpy(surname, id.surname, 36); surname[35] = '\0';
-    memcpy(name, id.name, 35); name[35] = '\0';
-    memcpy(birthday, id.birthday, 4); birthday[4] = '\0';
-    memcpy(country, id.country, 2); country[2] = '\0';
+    memcpy(cardNumber, ptr, 18); cardNumber[17] = '\0';
+    memcpy(issuer, ptr + 18, 35); issuer[35] = '\0';
+    memcpy(&dateissued, ptr + 53, 4);
+    memcpy(&startdate, ptr + 57, 4);
+    memcpy(&expirydate, ptr + 61, 4);
+    memcpy(surname, ptr + 66, 36); surname[35] = '\0';
+    memcpy(name, ptr + 102, 36); name[35] = '\0';
+    memcpy(birthday, ptr + 137, 4); birthday[4] = '\0';
+    memcpy(country, ptr + 141, 2); country[2] = '\0';
 }
 
-/*void ID::nullterminator()
-{
-    cardNumber[17] = '\0';
-    issuer[34] = '\0';
-    date0 = '\0';
-    surname[35] = '\0';
-    name[34] = '\0';
-    country[1] = country[0];
-    country[0] = end1;
-    end1 = '\0';
-    end2 = '\0';
-    //birthday[0] -= 6 * (birthday[0] % 10); // 6*firstdigit number
-    //birthday[1] -= 6 * (birthday[1] % 10);
-    //birthday[2] -= 6 * (birthday[2] % 10);
-    //birthday[3] -= 6 * (birthday[3] % 10);
-}*/
 
 DriverLicenseNULL::DriverLicenseNULL(BYTE* ptr)
 {

@@ -16,13 +16,10 @@ extern HMENU MainMenu;
 
 // main driver card data/sections
 // if we wanna copy data in one shot 2 structs are needed original && with nullterms
-extern ID idData;
+extern BYTE* idData;
 extern IDNull idDataNull;
-extern byte* ICDataptr;
-extern byte* ICCDataptr;
-extern byte* DIR;
-extern byte* ATR;
-extern byte* EL; // extended length
+extern BYTE* ICDataptr;
+extern BYTE* ICCDataptr;
 extern BYTE* driverLicenseDATAptr;
 extern DriverLicenseNULL licenseDataNull;
 extern BYTE* activitiesDATAptr;
@@ -30,6 +27,15 @@ extern BYTE* vehiclesDATAptr;
 extern BYTE* cardCertDATAptr;
 extern BYTE* CACertDATAptr;
 extern Vehicles vehicles;
+
+extern BYTE* appIdentification;
+extern BYTE* cardDownload;
+extern BYTE* eventsData;
+extern BYTE* faultsData;
+extern BYTE* places;
+extern BYTE* currentUsage;
+extern BYTE* controlActivityData;
+extern BYTE* specificConditions;
 
 extern int UTC;
 

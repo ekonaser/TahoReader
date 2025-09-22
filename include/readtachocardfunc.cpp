@@ -12,7 +12,7 @@ void DFG1(TahoReader& reader)
     CACertDATAptr = reader.ReadData(194); // exactly 194
 
     reader.SelectFile({0x00, 0xA4, 0x02, 0x0C, 0x02, 0x05, 0x20}); // ID section
-    memcpy(&idData, reader.ReadData(143), 143);
+    idData = reader.ReadData(143);
     idDataNull = IDNull(idData);
 
     reader.SelectFile({0x00, 0xA4, 0x02, 0x0C, 0x02, 0x05, 0x21}); // driver license section
@@ -25,6 +25,30 @@ void DFG1(TahoReader& reader)
     reader.SelectFile({0x00, 0xA4, 0x02, 0x0C, 0x02, 0x05, 0x05});
     vehiclesDATAptr = reader.ReadData(6107); // G1 size of file
     vehicles.readVehicles(vehiclesDATAptr);
+
+    reader.SelectFile({0x00, 0xA4, 0x02, 0x0C, 0x02, 0x05, 0x01});
+    appIdentification = reader.ReadData(10);
+
+    reader.SelectFile({0x00, 0xA4, 0x02, 0x0C, 0x02, 0x05, 0x0E});
+    cardDownload = reader.ReadData(4);
+
+    reader.SelectFile({0x00, 0xA4, 0x02, 0x0C, 0x02, 0x05, 0x02});
+    eventsData = reader.ReadData(1728);
+
+    reader.SelectFile({0x00, 0xA4, 0x02, 0x0C, 0x02, 0x05, 0x03});
+    faultsData = reader.ReadData(1152);
+
+    reader.SelectFile({0x00, 0xA4, 0x02, 0x0C, 0x02, 0x05, 0x06});
+    places = reader.ReadData(1121);
+
+    reader.SelectFile({0x00, 0xA4, 0x02, 0x0C, 0x02, 0x05, 0x07});
+    currentUsage = reader.ReadData(19);
+
+    reader.SelectFile({0x00, 0xA4, 0x02, 0x0C, 0x02, 0x05, 0x08});
+    controlActivityData = reader.ReadData(46);
+
+    reader.SelectFile({0x00, 0xA4, 0x02, 0x0C, 0x02, 0x05, 0x22});
+    specificConditions = reader.ReadData(280);
 }
 
 void DFG2(TahoReader& reader)

@@ -3,21 +3,27 @@
 #include "mainwndproc.hpp"
 #include "readtachocardfunc.hpp"
 #include <commdlg.h>
+#include <initializer_list>
 
 HMENU MainMenu;
-ID idData{};
+BYTE* ICCDataptr = nullptr;             // 00 02
+BYTE* ICDataptr = nullptr;              // 00 05
+BYTE* appIdentification = nullptr;      // 05 01
+BYTE* cardCertDATAptr = nullptr;        // C1 00
+BYTE* CACertDATAptr = nullptr;          // C1 08
+BYTE* idData = nullptr;                 // 05 20
+BYTE* cardDownload = nullptr;           // 05 0E
+BYTE* driverLicenseDATAptr = nullptr;   // 05 21
+BYTE* eventsData = nullptr;             // 05 02
+BYTE* faultsData = nullptr;             // 05 03
+BYTE* activitiesDATAptr = nullptr;      // 05 04
+BYTE* vehiclesDATAptr = nullptr;        // 05 05
+BYTE* places = nullptr;                 // 05 06
+BYTE* currentUsage = nullptr;           // 05 07
+BYTE* controlActivityData = nullptr;    // 05 08
+BYTE* specificConditions = nullptr;     // 05 22
 IDNull idDataNull{};
 DriverLicenseNULL licenseDataNull{};
-byte* ICDataptr = nullptr;
-byte* ICCDataptr = nullptr;
-byte* DIR = nullptr;
-byte* ATR = nullptr;
-byte* EL = nullptr;
-BYTE* driverLicenseDATAptr = nullptr;
-BYTE* activitiesDATAptr = nullptr;
-BYTE* vehiclesDATAptr = nullptr;
-BYTE* cardCertDATAptr = nullptr;
-BYTE* CACertDATAptr = nullptr;
 Vehicles vehicles(nullptr);
 
 int UTC = 0;
@@ -89,6 +95,8 @@ void SetWindowAttr(WNDCLASS& wc, HBRUSH color, LPCWSTR cursor, LPCWSTR icon, HIN
 
 void FlushMemory()
 {
+    delete[] idData;
+    idData = nullptr;
     delete[] activitiesDATAptr;
     activitiesDATAptr = nullptr;
     delete[] vehiclesDATAptr;
@@ -103,14 +111,24 @@ void FlushMemory()
     ICCDataptr = nullptr;
     delete[] driverLicenseDATAptr;
     driverLicenseDATAptr = nullptr;
-    delete[] DIR;
-    DIR = nullptr;
-    delete[] ATR;
-    ATR = nullptr;
-    delete[] EL;
-    EL = nullptr;
 
-    memset(&idData, 0, sizeof(ID));
+    delete[] appIdentification;
+    appIdentification = nullptr;
+    delete[] cardDownload;
+    cardDownload = nullptr;
+    delete[] eventsData;
+    eventsData = nullptr;
+    delete[] faultsData;
+    faultsData = nullptr;
+    delete[] places;
+    places = nullptr;
+    delete[] currentUsage;
+    currentUsage = nullptr;
+    delete[] controlActivityData;
+    controlActivityData = nullptr;
+    delete[] specificConditions;
+    specificConditions = nullptr;
+
     memset(&idDataNull, 0, sizeof(IDNull));
     memset(&licenseDataNull, 0, sizeof(DriverLicenseNULL));
 
@@ -139,15 +157,8 @@ int ReadTachographCard()
     // IC Data
     reader.SelectFile({0x00, 0xA4, 0x02, 0x0C, 0x02, 0x00, 0x05});
     ICDataptr = reader.ReadData(8);
-    // DIR
-    reader.SelectFile({0x00, 0xA4, 0x02, 0x0C, 0x02, 0x2F, 0x00});
-    DIR = reader.ReadData(20);
-    // ATR
-    reader.SelectFile({0x00, 0xA4, 0x02, 0x0C, 0x02, 0x2F, 0x01});
-    ATR = reader.ReadData(11);
-    // Extended length
-    reader.SelectFile({0x00, 0xA4, 0x02, 0x0C, 0x02, 0x00, 0x06});
-    EL = reader.ReadData(3);
+    // DIR ATR AND EL are not included in standard .DDD format therefore are not needed
+    // EL can be used for protocol
     
     /*DF*/
     DFG1(reader);
@@ -188,16 +199,23 @@ void RedrawBitMap(int left, int top, int right, int bottom, HDC& memDC, HWND& Wi
     EndPaint(Window, &ps);
 }
 
+
+void WriteToFile(FILE* fp, std::initializer_list<BYTE> arr, BYTE* data, int size)
+{
+    fwrite(arr.begin(), arr.size(), 1, fp);
+    fwrite(data, size, 1, fp);
+}
+
 void WriteDDD(HWND& hWindow)
 {
     OPENFILENAME file;
-    wchar_t SizeOfFile[260] = L"";
+    wchar_t StrFile[260] = L"";
 
     ZeroMemory(&file, sizeof(file));
     file.lStructSize = sizeof(file);
     file.hwndOwner = hWindow;
-    file.lpstrFile = SizeOfFile;
-    file.nMaxFile = sizeof(SizeOfFile) / sizeof(wchar_t);
+    file.lpstrFile = StrFile;
+    file.nMaxFile = sizeof(StrFile) / sizeof(wchar_t);
     file.lpstrFilter = L"DDD Files (*.ddd)\0*.ddd\0All Files (*.*)\0*.*\0";
     file.nFilterIndex = 1;
     file.lpstrDefExt = L"ddd";
@@ -206,13 +224,15 @@ void WriteDDD(HWND& hWindow)
     if (GetSaveFileName(&file))
     {
         FILE* fp = _wfopen(file.lpstrFile, L"wb");
-        if (fp) // serious function is needed here!!!!!! u cant just write data as it is
-        // NAREDI DVA ID STRUCTA en ki iam original variable memberje drugi ki ima dodatne
-        // in samo referencira original
+        if (fp)
         {
-            BYTE arr[5] = {0x05, 0x20, 0x00, 0x00, 0x8F};
-            fwrite(&arr, sizeof(arr), 1, fp);
-            fwrite(&idData, sizeof(idData), 1, fp);
+            WriteToFile(fp, {0x00, 0x02, 0x00, 0x00, 0x19}, ICCDataptr, 25);
+            WriteToFile(fp, {0x00, 0x05, 0x00, 0x00, 0x08}, ICDataptr, 8);
+            WriteToFile(fp, {0x05, 0x01, 0x00, 0x00, 0x0A}, appIdentification, 10);
+            WriteToFile(fp, {0xC1, 0x00, 0x00, 0x00, 0xC2}, cardCertDATAptr, 194);
+            WriteToFile(fp, {0xC1, 0x08, 0x00, 0x00, 0xC2}, CACertDATAptr, 194);
+            WriteToFile(fp, {0x05, 0x20, 0x00, 0x00, 0x8F}, idData, 143);
+            WriteToFile(fp, {0x05, 0x0E, 0x00, 0x00, 0x04}, cardDownload, 4);
             fclose(fp);
         }
     }

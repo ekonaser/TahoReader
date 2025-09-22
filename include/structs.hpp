@@ -7,20 +7,6 @@
 #include <unordered_map>
 
 #pragma pack(push, 1)
-struct ID {
-    char cardNumber[18];
-    char issuer[35];
-    uint32_t dateissued;
-    uint32_t startdate;
-    uint32_t expirydate;
-    byte datex01;
-    char surname[36];
-    char name[35];
-    byte birthday[4];
-    char country[2];
-};
-#pragma pack(pop)
-
 struct IDNull {
     char cardNumber[18];
     char issuer[36];
@@ -36,11 +22,12 @@ struct IDNull {
     {
         memset(this, 0, sizeof(IDNull));
     }
-    IDNull(const ID& id);
+    IDNull(BYTE* ptr);
 
     LPCSTR BirthDay();
     LPCSTR Date(uint32_t& variable);
 };
+#pragma pack(pop)
 
 #pragma pack(push, 1)
 struct DriverLicenseNULL {
@@ -133,10 +120,12 @@ struct DrawingBrush
     ~DrawingBrush();
 };
 
+#pragma pack(push, 1)
 struct uint24_t
 {
     uint8_t bytes[3];
 };
+#pragma pack(pop)
 
 struct Registration
 {
