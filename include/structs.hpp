@@ -147,7 +147,7 @@ struct Vehicle
 
 struct Vehicles
 {
-    Vehicle* ptrWrp = new Vehicle[197];
+    Vehicle* ptrWrp = new Vehicle[200]; // 6200 / 31 = 200 records
     Vehicles(BYTE* ptr);
     void readVehicles(BYTE* ptr);
     ~Vehicles();
@@ -167,4 +167,26 @@ struct ActivitiesTree
     ActivitiesTree(HWND& hTreeWindow, Activities& ActAdd);
     void CreateTree();
     void UpdateTreeVehicles(Vehicle* ptr);
+};
+
+struct G1Card
+{
+    BYTE* ICCDataptr = nullptr;             // 00 02
+    BYTE* ICDataptr = nullptr;              // 00 05
+    BYTE* appIdentification = nullptr;      // 05 01
+    BYTE* cardCertDATAptr = nullptr;        // C1 00
+    BYTE* CACertDATAptr = nullptr;          // C1 08
+    BYTE* idData = nullptr;                 // 05 20
+    BYTE* cardDownload = nullptr;           // 05 0E
+    BYTE* driverLicenseDATAptr = nullptr;   // 05 21
+    BYTE* eventsData = nullptr;             // 05 02
+    BYTE* faultsData = nullptr;             // 05 03
+    BYTE* activitiesDATAptr = nullptr;      // 05 04
+    BYTE* vehiclesDATAptr = nullptr;        // 05 05
+    BYTE* places = nullptr;                 // 05 06
+    BYTE* currentUsage = nullptr;           // 05 07
+    BYTE* controlActivityData = nullptr;    // 05 08
+    BYTE* specificConditions = nullptr;     // 05 22
+    G1Card() = default;
+    ~G1Card();
 };

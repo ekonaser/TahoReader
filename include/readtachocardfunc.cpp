@@ -6,49 +6,49 @@ void DFG1(TahoReader& reader)
 
     // Card Certificate
     reader.SelectFile({0x00, 0xA4, 0x02, 0x0C, 0x02, 0xC1, 0x00});
-    cardCertDATAptr = reader.ReadData(194); // exactly 194
+    gen1card.cardCertDATAptr = reader.ReadData(194); // exactly 194
     // CA Certificate
     reader.SelectFile({0x00, 0xA4, 0x02, 0x0C, 0x02, 0xC1, 0x08});
-    CACertDATAptr = reader.ReadData(194); // exactly 194
+    gen1card.CACertDATAptr = reader.ReadData(194); // exactly 194
 
     reader.SelectFile({0x00, 0xA4, 0x02, 0x0C, 0x02, 0x05, 0x20}); // ID section
-    idData = reader.ReadData(143);
-    idDataNull = IDNull(idData);
+    gen1card.idData = reader.ReadData(143);
+    idDataNull = IDNull(gen1card.idData);
 
     reader.SelectFile({0x00, 0xA4, 0x02, 0x0C, 0x02, 0x05, 0x21}); // driver license section
-    driverLicenseDATAptr = reader.ReadData(53);
-    licenseDataNull = DriverLicenseNULL(driverLicenseDATAptr);
+    gen1card.driverLicenseDATAptr = reader.ReadData(53);
+    licenseDataNull = DriverLicenseNULL(gen1card.driverLicenseDATAptr);
 
     reader.SelectFile({0x00, 0xA4, 0x02, 0x0C, 0x02, 0x05, 0x04});
-    activitiesDATAptr = reader.ReadData(13780);
+    gen1card.activitiesDATAptr = reader.ReadData(13780);
 
     reader.SelectFile({0x00, 0xA4, 0x02, 0x0C, 0x02, 0x05, 0x05});
-    vehiclesDATAptr = reader.ReadData(6107); // G1 size of file
-    vehicles.readVehicles(vehiclesDATAptr);
+    gen1card.vehiclesDATAptr = reader.ReadData(6202); // 6200 + 2 non-existent pointer
+    vehicles.readVehicles(gen1card.vehiclesDATAptr);
 
     reader.SelectFile({0x00, 0xA4, 0x02, 0x0C, 0x02, 0x05, 0x01});
-    appIdentification = reader.ReadData(10);
+    gen1card.appIdentification = reader.ReadData(10);
 
     reader.SelectFile({0x00, 0xA4, 0x02, 0x0C, 0x02, 0x05, 0x0E});
-    cardDownload = reader.ReadData(4);
+    gen1card.cardDownload = reader.ReadData(4);
 
     reader.SelectFile({0x00, 0xA4, 0x02, 0x0C, 0x02, 0x05, 0x02});
-    eventsData = reader.ReadData(1728);
+    gen1card.eventsData = reader.ReadData(1728);
 
     reader.SelectFile({0x00, 0xA4, 0x02, 0x0C, 0x02, 0x05, 0x03});
-    faultsData = reader.ReadData(1152);
+    gen1card.faultsData = reader.ReadData(1152);
 
     reader.SelectFile({0x00, 0xA4, 0x02, 0x0C, 0x02, 0x05, 0x06});
-    places = reader.ReadData(1121);
+    gen1card.places = reader.ReadData(1121);
 
     reader.SelectFile({0x00, 0xA4, 0x02, 0x0C, 0x02, 0x05, 0x07});
-    currentUsage = reader.ReadData(19);
+    gen1card.currentUsage = reader.ReadData(19);
 
     reader.SelectFile({0x00, 0xA4, 0x02, 0x0C, 0x02, 0x05, 0x08});
-    controlActivityData = reader.ReadData(46);
+    gen1card.controlActivityData = reader.ReadData(46);
 
     reader.SelectFile({0x00, 0xA4, 0x02, 0x0C, 0x02, 0x05, 0x22});
-    specificConditions = reader.ReadData(280);
+    gen1card.specificConditions = reader.ReadData(280);
 }
 
 void DFG2(TahoReader& reader)

@@ -112,9 +112,9 @@ LRESULT CALLBACK ActivitiesWndProc(HWND hParentWindow, UINT msg, WPARAM wParam, 
         {
             activities.~Activities();
             if (Tree) delete Tree;
-            int end = (activitiesDATAptr[0] << 8) | activitiesDATAptr[1];
-            int start = (activitiesDATAptr[2] << 8) | activitiesDATAptr[3];
-            activities.readActivities(activitiesDATAptr+4, end, start);
+            int end = (gen1card.activitiesDATAptr[0] << 8) | gen1card.activitiesDATAptr[1];
+            int start = (gen1card.activitiesDATAptr[2] << 8) | gen1card.activitiesDATAptr[3];
+            activities.readActivities(gen1card.activitiesDATAptr+4, end, start);
             Tree = new ActivitiesTree(hTree, activities);
             Tree->CreateTree();
             Tree->UpdateTreeVehicles(vehicles.ptrWrp);

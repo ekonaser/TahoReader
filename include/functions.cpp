@@ -6,22 +6,7 @@
 #include <initializer_list>
 
 HMENU MainMenu;
-BYTE* ICCDataptr = nullptr;             // 00 02
-BYTE* ICDataptr = nullptr;              // 00 05
-BYTE* appIdentification = nullptr;      // 05 01
-BYTE* cardCertDATAptr = nullptr;        // C1 00
-BYTE* CACertDATAptr = nullptr;          // C1 08
-BYTE* idData = nullptr;                 // 05 20
-BYTE* cardDownload = nullptr;           // 05 0E
-BYTE* driverLicenseDATAptr = nullptr;   // 05 21
-BYTE* eventsData = nullptr;             // 05 02
-BYTE* faultsData = nullptr;             // 05 03
-BYTE* activitiesDATAptr = nullptr;      // 05 04
-BYTE* vehiclesDATAptr = nullptr;        // 05 05
-BYTE* places = nullptr;                 // 05 06
-BYTE* currentUsage = nullptr;           // 05 07
-BYTE* controlActivityData = nullptr;    // 05 08
-BYTE* specificConditions = nullptr;     // 05 22
+G1Card gen1card;
 IDNull idDataNull{};
 DriverLicenseNULL licenseDataNull{};
 Vehicles vehicles(nullptr);
@@ -95,40 +80,7 @@ void SetWindowAttr(WNDCLASS& wc, HBRUSH color, LPCWSTR cursor, LPCWSTR icon, HIN
 
 void FlushMemory()
 {
-    delete[] idData;
-    idData = nullptr;
-    delete[] activitiesDATAptr;
-    activitiesDATAptr = nullptr;
-    delete[] vehiclesDATAptr;
-    vehiclesDATAptr = nullptr;
-    delete[] cardCertDATAptr;
-    cardCertDATAptr = nullptr;
-    delete[] CACertDATAptr;
-    CACertDATAptr = nullptr;
-    delete[] ICDataptr;
-    ICDataptr = nullptr;
-    delete[] ICCDataptr;
-    ICCDataptr = nullptr;
-    delete[] driverLicenseDATAptr;
-    driverLicenseDATAptr = nullptr;
-
-    delete[] appIdentification;
-    appIdentification = nullptr;
-    delete[] cardDownload;
-    cardDownload = nullptr;
-    delete[] eventsData;
-    eventsData = nullptr;
-    delete[] faultsData;
-    faultsData = nullptr;
-    delete[] places;
-    places = nullptr;
-    delete[] currentUsage;
-    currentUsage = nullptr;
-    delete[] controlActivityData;
-    controlActivityData = nullptr;
-    delete[] specificConditions;
-    specificConditions = nullptr;
-
+    gen1card = G1Card();
     memset(&idDataNull, 0, sizeof(IDNull));
     memset(&licenseDataNull, 0, sizeof(DriverLicenseNULL));
 
@@ -153,10 +105,10 @@ int ReadTachographCard()
     /*EF*/
     // ICC Data
     reader.SelectFile({0x00, 0xA4, 0x02, 0x0C, 0x02, 0x00, 0x02});
-    ICCDataptr = reader.ReadData(25);
+    gen1card.ICCDataptr = reader.ReadData(25);
     // IC Data
     reader.SelectFile({0x00, 0xA4, 0x02, 0x0C, 0x02, 0x00, 0x05});
-    ICDataptr = reader.ReadData(8);
+    gen1card.ICDataptr = reader.ReadData(8);
     // DIR ATR AND EL are not included in standard .DDD format therefore are not needed
     // EL can be used for protocol
     
@@ -226,13 +178,23 @@ void WriteDDD(HWND& hWindow)
         FILE* fp = _wfopen(file.lpstrFile, L"wb");
         if (fp)
         {
-            WriteToFile(fp, {0x00, 0x02, 0x00, 0x00, 0x19}, ICCDataptr, 25);
-            WriteToFile(fp, {0x00, 0x05, 0x00, 0x00, 0x08}, ICDataptr, 8);
-            WriteToFile(fp, {0x05, 0x01, 0x00, 0x00, 0x0A}, appIdentification, 10);
-            WriteToFile(fp, {0xC1, 0x00, 0x00, 0x00, 0xC2}, cardCertDATAptr, 194);
-            WriteToFile(fp, {0xC1, 0x08, 0x00, 0x00, 0xC2}, CACertDATAptr, 194);
-            WriteToFile(fp, {0x05, 0x20, 0x00, 0x00, 0x8F}, idData, 143);
-            WriteToFile(fp, {0x05, 0x0E, 0x00, 0x00, 0x04}, cardDownload, 4);
+            WriteToFile(fp, {0x00, 0x02, 0x00, 0x00, 0x19}, gen1card.ICCDataptr, 25);
+            WriteToFile(fp, {0x00, 0x05, 0x00, 0x00, 0x08}, gen1card.ICDataptr, 8);
+            WriteToFile(fp, {0x05, 0x01, 0x00, 0x00, 0x0A}, gen1card.appIdentification, 10);
+            WriteToFile(fp, {0xC1, 0x00, 0x00, 0x00, 0xC2}, gen1card.cardCertDATAptr, 194);
+            WriteToFile(fp, {0xC1, 0x08, 0x00, 0x00, 0xC2}, gen1card.CACertDATAptr, 194);
+            WriteToFile(fp, {0x05, 0x20, 0x00, 0x00, 0x8F}, gen1card.idData, 143);
+            WriteToFile(fp, {0x05, 0x0E, 0x00, 0x00, 0x04}, gen1card.cardDownload, 4);
+            WriteToFile(fp, {0x05, 0x21, 0x00, 0x00, 0x35}, gen1card.driverLicenseDATAptr, 53);
+            WriteToFile(fp, {0x05, 0x02, 0x00, 0x06, 0xC0}, gen1card.eventsData, 1728);
+            WriteToFile(fp, {0x05, 0x03, 0x00, 0x04, 0x80}, gen1card.faultsData, 1152);
+            WriteToFile(fp, {0x05, 0x04, 0x00, 0x35, 0xD4}, gen1card.activitiesDATAptr, 13780);
+            WriteToFile(fp, {0x05, 0x05, 0x00, 0x18, 0x3A}, gen1card.vehiclesDATAptr, 6202);
+            WriteToFile(fp, {0x05, 0x06, 0x00, 0x04, 0x61}, gen1card.places, 1121);
+            WriteToFile(fp, {0x05, 0x07, 0x00, 0x00, 0x13}, gen1card.currentUsage, 19);
+            WriteToFile(fp, {0x05, 0x08, 0x00, 0x00, 0x2E}, gen1card.controlActivityData, 46);
+            WriteToFile(fp, {0x05, 0x22, 0x00, 0x01, 0x18}, gen1card.specificConditions, 280);
+            // 24926 + 25 + 8
             fclose(fp);
         }
     }

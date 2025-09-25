@@ -217,7 +217,7 @@ DrawingBrush::~DrawingBrush() {
 
 void Vehicles::readVehicles(BYTE* ptr)
 {
-    int no = 6107, i = 0;
+    int no = 6200, i = 0; // generation 1 card VehiclePointerNewestRecord non-existent
     while (no)
     {
         memcpy(&ptrWrp[i], ptr, 31);
@@ -313,4 +313,23 @@ void ActivitiesTree::UpdateTreeVehicles(Vehicle* ptr)
             }
         }
     }
+}
+
+G1Card::~G1Card() {
+    delete[] ICCDataptr;
+    delete[] ICDataptr;
+    delete[] appIdentification;
+    delete[] cardCertDATAptr;
+    delete[] CACertDATAptr;
+    delete[] idData;
+    delete[] cardDownload;
+    delete[] driverLicenseDATAptr;
+    delete[] eventsData;
+    delete[] faultsData;
+    delete[] activitiesDATAptr;
+    delete[] vehiclesDATAptr;
+    delete[] places;
+    delete[] currentUsage;
+    delete[] controlActivityData;
+    delete[] specificConditions;
 }

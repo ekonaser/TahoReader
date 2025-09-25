@@ -95,29 +95,29 @@ LRESULT CALLBACK CertificatesWndProc(HWND hParentWindow, UINT msg, WPARAM wParam
         }
         case ID_CERTSTAB_UPDATE:
         {
-            if ((cardCertDATAptr) && (CACertDATAptr))
+            if ((gen1card.cardCertDATAptr) && (gen1card.CACertDATAptr))
             {
-                TextFillWnd(CardCWnd, cardCertDATAptr);
-                TextFillWnd(CACWnd, CACertDATAptr);
-                sprintf(buffer, "Serial number: %u", (ICDataptr[0] << 24) | (ICDataptr[1] << 16) | (ICDataptr[2] << 8) | ICDataptr[3]);
+                TextFillWnd(CardCWnd, gen1card.cardCertDATAptr);
+                TextFillWnd(CACWnd, gen1card.CACertDATAptr);
+                sprintf(buffer, "Serial number: %u", (gen1card.ICDataptr[0] << 24) | (gen1card.ICDataptr[1] << 16) | (gen1card.ICDataptr[2] << 8) | gen1card.ICDataptr[3]);
                 SetWindowTextA(ICSerialNumber, buffer);
-                sprintf(buffer, "Manufacturing references: %u", (ICDataptr[4] << 24) | (ICDataptr[5] << 16) | (ICDataptr[6] << 8) | ICDataptr[7]);
+                sprintf(buffer, "Manufacturing references: %u", (gen1card.ICDataptr[4] << 24) | (gen1card.ICDataptr[5] << 16) | (gen1card.ICDataptr[6] << 8) | gen1card.ICDataptr[7]);
                 SetWindowTextA(ICMR, buffer);
-                PrintClockStop(ClockStop, ICCDataptr[0]);
+                PrintClockStop(ClockStop, gen1card.ICCDataptr[0]);
                 sprintf(buffer, "Extended serial number: %02X %02X %02X %02X %02X %02X %02X %02X",
-                    ICCDataptr[1], ICCDataptr[2], ICCDataptr[3], ICCDataptr[4],
-                    ICCDataptr[5], ICCDataptr[6], ICCDataptr[7], ICCDataptr[8]);
+                    gen1card.ICCDataptr[1], gen1card.ICCDataptr[2], gen1card.ICCDataptr[3], gen1card.ICCDataptr[4],
+                    gen1card.ICCDataptr[5], gen1card.ICCDataptr[6], gen1card.ICCDataptr[7], gen1card.ICCDataptr[8]);
                 SetWindowTextA(ExtendedSerialNumber, buffer);
                 sprintf(buffer, "Card approval number: %02X %02X %02X %02X %02X %02X %02X %02X",
-                    ICCDataptr[9], ICCDataptr[10], ICCDataptr[11], ICCDataptr[12],
-                    ICCDataptr[13], ICCDataptr[14], ICCDataptr[15], ICCDataptr[16]);
+                    gen1card.ICCDataptr[9], gen1card.ICCDataptr[10], gen1card.ICCDataptr[11], gen1card.ICCDataptr[12],
+                    gen1card.ICCDataptr[13], gen1card.ICCDataptr[14], gen1card.ICCDataptr[15], gen1card.ICCDataptr[16]);
                 SetWindowTextA(CardApprovalNumber, buffer);
-                sprintf(buffer, "Personaliser ID: %02X", ICCDataptr[17]);
+                sprintf(buffer, "Personaliser ID: %02X", gen1card.ICCDataptr[17]);
                 SetWindowTextA(PersonaliserID, buffer);
                 sprintf(buffer, "IC Assembler ID: %02X %02X %02X %02X %02X",
-                    ICCDataptr[18], ICCDataptr[19], ICCDataptr[20], ICCDataptr[21], ICCDataptr[22]);
+                    gen1card.ICCDataptr[18], gen1card.ICCDataptr[19], gen1card.ICCDataptr[20], gen1card.ICCDataptr[21], gen1card.ICCDataptr[22]);
                 SetWindowTextA(ICAssemblerID, buffer);
-                sprintf(buffer, "IC identifier: %02X %02X", ICCDataptr[23], ICCDataptr[24]);
+                sprintf(buffer, "IC identifier: %02X %02X", gen1card.ICCDataptr[23], gen1card.ICCDataptr[24]);
                 SetWindowTextA(ICIdentifier, buffer);
             } else {
                 SetWindowTextA(CardCWnd, NULL);
