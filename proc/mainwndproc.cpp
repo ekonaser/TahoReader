@@ -50,6 +50,16 @@ LRESULT CALLBACK MainWndProc(HWND hMainWindow, UINT msg, WPARAM wParam, LPARAM l
             CertTab = CreateWindowEx(0, Tab3, NULL, WS_CHILD,
                 TabRect.left, TabRect.right + 40, TabRect.right - TabRect.left, TabRect.bottom - (TabRect.right + 40),
                 TabControl, (HMENU)ID_CERTSTAB, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
+
+            // default open file
+            LPCREATESTRUCT s = (LPCREATESTRUCT)lParam;
+            LPSTR filePath = (LPSTR)s->lpCreateParams;
+
+            /*if (filePath)
+            {
+                ReadTachographFile(filePath);
+                PostMessage(IDTab, ID_IDTAB_UPDATE, 0, 0);
+            }*/
             break;
         }
         case WM_NOTIFY:
@@ -120,6 +130,29 @@ LRESULT CALLBACK MainWndProc(HWND hMainWindow, UINT msg, WPARAM wParam, LPARAM l
                 }
                 case 102:
                 {
+                    OPENFILENAMEA ofn = {0};
+                    char filePath[MAX_PATH] = {0};
+
+                    ofn.lStructSize = sizeof(OPENFILENAME);
+                    ofn.hwndOwner = hMainWindow;
+                    ofn.lpstrFile = filePath;
+                    ofn.nMaxFile = MAX_PATH;
+                    ofn.lpstrFilter = "DDD Files\0*.ddd\0All Files\0*.*\0";
+                    ofn.nFilterIndex = 1;
+                    ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+
+                    if (GetOpenFileNameA(&ofn)) {
+                        ReadTachographFile(filePath);
+                        SendMessage(IDTab, ID_IDTAB_UPDATE, 0, 0);
+                        SendMessage(ActivitiesTab, ID_ACTIVITIESTAB_UPDATE, 0, 0);
+                        SendMessage(CertTab, ID_CERTSTAB_UPDATE, 0, 0);
+                    }
+                    break;
+                }
+
+                case 103:
+                {
+                    FlushMemory();
                     PostQuitMessage(0);
                     break;
                 }
@@ -149,6 +182,7 @@ LRESULT CALLBACK MainWndProc(HWND hMainWindow, UINT msg, WPARAM wParam, LPARAM l
         }
         case WM_DESTROY:
         {
+            FlushMemory();
             PostQuitMessage(0);
             break;
         }

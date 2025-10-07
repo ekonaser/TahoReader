@@ -190,3 +190,13 @@ struct G1Card
     G1Card() = default;
     ~G1Card();
 };
+
+struct G2Card : G1Card
+{
+    BYTE* cardSignCertificate = nullptr;    // C1 01
+    BYTE* linkCertificate = nullptr;        // C1 09
+    BYTE* vehicleUnitsUsed = nullptr;       // 05 23
+    BYTE* GNSS = nullptr;                   // 05 24 Global Navigation Satellite System
+    G2Card() = default;
+    ~G2Card();
+};

@@ -1,6 +1,6 @@
 #include "mainwndproc.hpp"
 
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR cmdline, int cmdshow)
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR filePath, int cmdshow)
 {
     // main window attributes
     WNDCLASS MainWndAttr = {0};
@@ -19,7 +19,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR cmdline, 
     int x = GetSystemMetrics(SM_CXSCREEN) / 2 - 500, y = GetSystemMetrics(SM_CYSCREEN) / 2 - 400;
 
     HWND MainWindow = CreateWindow(TEXT("TahoReader"), TEXT("TahoReader"), WS_OVERLAPPEDWINDOW,
-        x, y, 1000, 800, NULL, MainMenu, hInstance, NULL);
+        x, y, 1000, 800, NULL, MainMenu, hInstance, (LPVOID)filePath);
     
     ShowWindow(MainWindow, cmdshow);
     UpdateWindow(MainWindow);

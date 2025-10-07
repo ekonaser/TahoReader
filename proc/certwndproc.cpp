@@ -95,7 +95,7 @@ LRESULT CALLBACK CertificatesWndProc(HWND hParentWindow, UINT msg, WPARAM wParam
         }
         case ID_CERTSTAB_UPDATE:
         {
-            if ((gen1card.cardCertDATAptr) && (gen1card.CACertDATAptr))
+            if ((gen1card.cardCertDATAptr) && (gen1card.CACertDATAptr) && (gen1card.ICDataptr) && (gen1card.ICCDataptr))
             {
                 TextFillWnd(CardCWnd, gen1card.cardCertDATAptr);
                 TextFillWnd(CACWnd, gen1card.CACertDATAptr);

@@ -7,6 +7,7 @@
 
 HMENU MainMenu;
 G1Card gen1card;
+G2Card gen2card;
 IDNull idDataNull{};
 DriverLicenseNULL licenseDataNull{};
 Vehicles vehicles(nullptr);
@@ -47,7 +48,8 @@ void CreateMainMenu(){
     HMENU Help = CreateMenu();
     
     AppendMenu(Program, MF_STRING, 101, TEXT("Save As"));
-    AppendMenu(Program, MF_STRING, 102, TEXT("Exit\tAlt+F4"));
+    AppendMenu(Program, MF_STRING, 102, TEXT("Open"));
+    AppendMenu(Program, MF_STRING, 103, TEXT("Exit\tAlt+F4"));
     AppendMenu(MainMenu, MF_STRING | MF_POPUP, (UINT_PTR)(Program), TEXT("Program"));
 
     AppendMenu(Card, MF_STRING, 201, TEXT("Read card\tF5"));
@@ -81,6 +83,7 @@ void SetWindowAttr(WNDCLASS& wc, HBRUSH color, LPCWSTR cursor, LPCWSTR icon, HIN
 void FlushMemory()
 {
     gen1card = G1Card();
+    gen2card = G2Card();
     memset(&idDataNull, 0, sizeof(IDNull));
     memset(&licenseDataNull, 0, sizeof(DriverLicenseNULL));
 
@@ -114,7 +117,89 @@ int ReadTachographCard()
     
     /*DF*/
     DFG1(reader);
+    DFG2(reader);
 
+    return 0;
+}
+
+int ReadTachographFile(LPSTR filePath)
+{
+    FlushMemory();
+    static TahoFileReader reader;
+    reader.ReadFile(filePath);
+
+    // GEN 1
+    gen1card.ICCDataptr = reader.FindFile(0x00, 0x02, 0x00);
+
+    gen1card.ICDataptr = reader.FindFile(0x00, 0x05, 0x00);
+
+    gen1card.cardCertDATAptr = reader.FindFile(0xC1, 0x00, 0x00);
+
+    gen1card.CACertDATAptr = reader.FindFile(0xC1, 0x08, 0x00);
+
+    gen1card.idData = reader.FindFile(0x05, 0x20, 0x00);
+    idDataNull = IDNull(gen1card.idData);
+
+    gen1card.driverLicenseDATAptr = reader.FindFile(0x05, 0x21, 0x00);
+    licenseDataNull = DriverLicenseNULL(gen1card.driverLicenseDATAptr);
+
+    gen1card.activitiesDATAptr = reader.FindFile(0x05, 0x04, 0x00);
+
+    gen1card.vehiclesDATAptr = reader.FindFile(0x05, 0x05, 0x00);
+    vehicles.readVehicles(gen1card.vehiclesDATAptr);
+
+    gen1card.appIdentification = reader.FindFile(0x05, 0x01, 0x00);
+
+    gen1card.cardDownload = reader.FindFile(0x05, 0x0E, 0x00);
+
+    gen1card.eventsData = reader.FindFile(0x05, 0x02, 0x00);
+
+    gen1card.faultsData = reader.FindFile(0x05, 0x03, 0x00);
+
+    gen1card.places = reader.FindFile(0x05, 0x06, 0x00);
+
+    gen1card.currentUsage = reader.FindFile(0x05, 0x07, 0x00);
+
+    gen1card.controlActivityData = reader.FindFile(0x05, 0x08, 0x00);
+
+    gen1card.specificConditions = reader.FindFile(0x05, 0x22, 0x00);
+    
+    // GEN 2
+    gen2card.cardCertDATAptr = reader.FindFile(0xC1, 0x00, 0x02);
+
+    gen2card.CACertDATAptr = reader.FindFile(0xC1, 0x08, 0x02);
+
+    gen2card.idData = reader.FindFile(0x05, 0x20, 0x02);
+
+    gen2card.driverLicenseDATAptr = reader.FindFile(0x05, 0x21, 0x02);
+
+    gen2card.activitiesDATAptr = reader.FindFile(0x05, 0x04, 0x02);
+
+    gen2card.vehiclesDATAptr = reader.FindFile(0x05, 0x05, 0x02);
+
+    gen2card.appIdentification = reader.FindFile(0x05, 0x01, 0x02);
+
+    gen2card.cardDownload = reader.FindFile(0x05, 0x0E, 0x02);
+
+    gen2card.eventsData = reader.FindFile(0x05, 0x02, 0x02);
+
+    gen2card.faultsData = reader.FindFile(0x05, 0x03, 0x02);
+
+    gen2card.places = reader.FindFile(0x05, 0x06, 0x02);
+
+    gen2card.currentUsage = reader.FindFile(0x05, 0x07, 0x02);
+
+    gen2card.controlActivityData = reader.FindFile(0x05, 0x08, 0x02);
+
+    gen2card.specificConditions = reader.FindFile(0x05, 0x22, 0x02);
+
+    gen2card.cardSignCertificate = reader.FindFile(0xC1, 0x01, 0x02);
+
+    gen2card.linkCertificate = reader.FindFile(0xC1, 0x09, 0x02);
+
+    gen2card.vehicleUnitsUsed = reader.FindFile(0x05, 0x23, 0x02);
+
+    gen2card.GNSS = reader.FindFile(0x05, 0x24, 0x02);
     return 0;
 }
 
@@ -178,6 +263,8 @@ void WriteDDD(HWND& hWindow)
         FILE* fp = _wfopen(file.lpstrFile, L"wb");
         if (fp)
         {
+            // [2bytes, 1byte, 2bytes]
+            // [section, card generation, length of section]
             WriteToFile(fp, {0x00, 0x02, 0x00, 0x00, 0x19}, gen1card.ICCDataptr, 25);
             WriteToFile(fp, {0x00, 0x05, 0x00, 0x00, 0x08}, gen1card.ICDataptr, 8);
             WriteToFile(fp, {0x05, 0x01, 0x00, 0x00, 0x0A}, gen1card.appIdentification, 10);
@@ -195,6 +282,25 @@ void WriteDDD(HWND& hWindow)
             WriteToFile(fp, {0x05, 0x08, 0x00, 0x00, 0x2E}, gen1card.controlActivityData, 46);
             WriteToFile(fp, {0x05, 0x22, 0x00, 0x01, 0x18}, gen1card.specificConditions, 280);
             // 24926 + 25 + 8
+            WriteToFile(fp, {0x05, 0x01, 0x02, 0x00, 0x0F}, gen2card.appIdentification, 15);
+            WriteToFile(fp, {0xC1, 0x00, 0x02, 0x00, 0xCD}, gen2card.cardCertDATAptr, 205);
+            WriteToFile(fp, {0xC1, 0x01, 0x02, 0x00, 0xCD}, gen2card.cardSignCertificate, 205);
+            WriteToFile(fp, {0xC1, 0x08, 0x02, 0x00, 0xCD}, gen2card.CACertDATAptr, 205);
+            WriteToFile(fp, {0xC1, 0x09, 0x02, 0x00, 0xCD}, gen2card.linkCertificate, 205);
+            WriteToFile(fp, {0x05, 0x20, 0x02, 0x00, 0x8F}, gen2card.idData, 143);
+            WriteToFile(fp, {0x05, 0x0E, 0x02, 0x00, 0x04}, gen2card.cardDownload, 4);
+            WriteToFile(fp, {0x05, 0x21, 0x02, 0x00, 0x35}, gen2card.driverLicenseDATAptr, 53);
+            WriteToFile(fp, {0x05, 0x02, 0x02, 0x0C, 0x60}, gen2card.eventsData, 3168);
+            WriteToFile(fp, {0x05, 0x03, 0x02, 0x04, 0x80}, gen2card.faultsData, 1152);
+            WriteToFile(fp, {0x05, 0x04, 0x02, 0x35, 0xD4}, gen2card.activitiesDATAptr, 13780);
+            WriteToFile(fp, {0x05, 0x05, 0x02, 0x25, 0x82}, gen2card.vehiclesDATAptr, 9602);
+            WriteToFile(fp, {0x05, 0x06, 0x02, 0x09, 0x32}, gen2card.places, 2354);
+            WriteToFile(fp, {0x05, 0x07, 0x02, 0x00, 0x13}, gen2card.currentUsage, 19);
+            WriteToFile(fp, {0x05, 0x08, 0x02, 0x00, 0x2E}, gen2card.controlActivityData, 46);
+            WriteToFile(fp, {0x05, 0x22, 0x02, 0x02, 0x32}, gen2card.specificConditions, 562);
+            WriteToFile(fp, {0x05, 0x23, 0x02, 0x07, 0xD2}, gen2card.vehicleUnitsUsed, 2002);
+            WriteToFile(fp, {0x05, 0x24, 0x02, 0x13, 0xB2}, gen2card.GNSS, 5042);
+            // 39306
             fclose(fp);
         }
     }

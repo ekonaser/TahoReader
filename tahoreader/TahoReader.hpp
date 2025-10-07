@@ -2,6 +2,7 @@
 
 #include <winscard.h>
 #include <stdint.h>
+#include <structs.hpp>
 
 class TahoReader
 {
@@ -26,4 +27,14 @@ public:
     bool CheckStatus();
 
     ~TahoReader();
+};
+
+class TahoFileReader
+{
+private:
+    BYTE buffer[65563*2];
+public:
+    TahoFileReader();
+    void ReadFile(LPSTR filePath);
+    BYTE* FindFile(BYTE b1, BYTE b2, BYTE b3);
 };

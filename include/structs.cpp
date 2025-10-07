@@ -333,3 +333,27 @@ G1Card::~G1Card() {
     delete[] controlActivityData;
     delete[] specificConditions;
 }
+
+G2Card::~G2Card() {
+    delete[] ICCDataptr;
+    delete[] ICDataptr;
+    delete[] appIdentification;
+    delete[] cardCertDATAptr;
+    delete[] CACertDATAptr;
+    delete[] idData;
+    delete[] cardDownload;
+    delete[] driverLicenseDATAptr;
+    delete[] eventsData;
+    delete[] faultsData;
+    delete[] activitiesDATAptr;
+    delete[] vehiclesDATAptr;
+    delete[] places;
+    delete[] currentUsage;
+    delete[] controlActivityData;
+    delete[] specificConditions;
+
+    delete[] cardSignCertificate;
+    delete[] linkCertificate;
+    delete[] vehicleUnitsUsed;
+    delete[] GNSS;
+}

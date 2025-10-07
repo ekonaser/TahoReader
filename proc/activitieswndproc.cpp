@@ -111,13 +111,15 @@ LRESULT CALLBACK ActivitiesWndProc(HWND hParentWindow, UINT msg, WPARAM wParam, 
         case ID_ACTIVITIESTAB_UPDATE:
         {
             activities.~Activities();
-            if (Tree) delete Tree;
             int end = (gen1card.activitiesDATAptr[0] << 8) | gen1card.activitiesDATAptr[1];
             int start = (gen1card.activitiesDATAptr[2] << 8) | gen1card.activitiesDATAptr[3];
             activities.readActivities(gen1card.activitiesDATAptr+4, end, start);
+
+            if (Tree) delete Tree;
             Tree = new ActivitiesTree(hTree, activities);
             Tree->CreateTree();
             Tree->UpdateTreeVehicles(vehicles.ptrWrp);
+            
             SendMessage(hParentWindow, ID_ACTIVITIESTAB_UPDATE_TIME, 0, 0);
             SendMessage(hDraw, ID_ACTIVITIESTAB_DRAW_DAY, 0, (LPARAM)activities.GetNextPtrWrp()); // we send pointer to the data that will be drawn
             break;

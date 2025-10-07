@@ -54,3 +54,27 @@ BYTE* TahoReader::ReadData(int length) {
 
     return ptr;
 }
+
+
+TahoFileReader::TahoFileReader() {
+    // empty constructor
+}
+
+void TahoFileReader::ReadFile(LPSTR filePath)
+{
+    FILE* fp = fopen(filePath, "rb");
+    fread(buffer, 1, sizeof(buffer), fp);
+    fclose(fp);
+}
+
+BYTE* TahoFileReader::FindFile(BYTE b1, BYTE b2, BYTE b3)
+{
+    for (int i = 0; i < 65563*2; i++)
+    {
+        if (buffer[i] == b1 && buffer[i+1] == b2 && buffer[i+2] == b3)
+        {
+            return &buffer[i+5];
+        }
+    }
+    return nullptr;
+}
