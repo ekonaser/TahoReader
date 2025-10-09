@@ -142,23 +142,9 @@ void DrawingBrush::DrawOneDay(BYTE* ptr, int counter, ActivityData& pData) {
                 rect.right = (hWindowRect.right / 16) * 4;
                 pData.rest += duration;
                 
-                if (!pData.RecordingRest && (duration < 45))
-                {
-                    pData.RecordingRest += 15;
-                }
-                else if (pData.RecordingRest && (duration <= 45) && (duration >= 30))
-                {
-                    pData.RecordingRest += 30;
-                }
-                else if (pData.RecordingRest && (duration >= 45))
-                {
-                    pData.RecordingRest += 30;
-                }
-                else if (!pData.RecordingRest && (duration >= 45))
-                {
-                    pData.RecordingRest += 45;
-                }
-                FillRect(hdc, &rect, color);                    
+                RestingFunc(pData.RecordingRest, duration);
+                CreateColor(0x1F, 0xFF, 0x1F);
+                FillRect(hdc, &rect, color);
                 if (pData.RecordingRest == 45) pData.RecordingRest = 0, pData.Overdrive = 0;
                 break;
             }
@@ -167,7 +153,10 @@ void DrawingBrush::DrawOneDay(BYTE* ptr, int counter, ActivityData& pData) {
                 rect.left = (hWindowRect.right / 16) * 6;
                 rect.right = (hWindowRect.right / 16) * 7;
                 pData.administration += duration;
+                RestingFunc(pData.RecordingRest, duration);
+                CreateColor(0x6B, 0x6B, 0x6B);
                 FillRect(hdc, &rect, color);
+                if (pData.RecordingRest == 45) pData.RecordingRest = 0, pData.Overdrive = 0;
                 break;
             }
             case 2: // WORK
@@ -175,6 +164,7 @@ void DrawingBrush::DrawOneDay(BYTE* ptr, int counter, ActivityData& pData) {
                 rect.left = (hWindowRect.right / 16) * 9;
                 rect.right = (hWindowRect.right / 16) * 10;
                 pData.work += duration;
+                CreateColor(0xFF, 0x9D, 0x00);
                 FillRect(hdc, &rect, color);
                 break;
             }
@@ -184,6 +174,7 @@ void DrawingBrush::DrawOneDay(BYTE* ptr, int counter, ActivityData& pData) {
                 rect.right = (hWindowRect.right / 16) * 13;
                 pData.driving += duration;
                 pData.Overdrive += duration;
+                CreateColor(0x00, 0xA5, 0xFF);
                 FillRect(hdc, &rect, color);
                 if ((pData.RecordingRest < 45) && (pData.Overdrive > 270))
                 {

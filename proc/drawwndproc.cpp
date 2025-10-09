@@ -43,9 +43,9 @@ LRESULT CALLBACK DrawWndProc(HWND hParentWindow, UINT msg, WPARAM wParam, LPARAM
 
             si = {0};
             si.fMask = SIF_PAGE | SIF_POS | SIF_RANGE;
-            si.nMax = 14400;
+            si.nMax = 15200; // apparently MSVC and g++ compiles differently, very much!!!
             si.nMin = 0;
-            si.nPage = 800;
+            si.nPage = 380;
             si.nPos = 0;
             si.cbSize = sizeof(si);
             SetScrollInfo(hParentWindow, SB_VERT, &si, TRUE);
@@ -58,7 +58,7 @@ LRESULT CALLBACK DrawWndProc(HWND hParentWindow, UINT msg, WPARAM wParam, LPARAM
             int prevPos = si.nPos;
             switch (LOWORD(wParam))
             {
-                case SB_THUMBTRACK: si.nPos = (HIWORD(wParam) / 800) * 800; break;
+                case SB_THUMBTRACK: si.nPos = (HIWORD(wParam) / 380) * 380; break;
                 case SB_LINEUP: si.nPos -= 10; break;
                 case SB_LINEDOWN: si.nPos += 10; break;
             }

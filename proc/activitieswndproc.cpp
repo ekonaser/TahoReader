@@ -18,7 +18,6 @@ LRESULT CALLBACK TreeWndProc(HWND hParentWindow, UINT msg, WPARAM wParam, LPARAM
 LRESULT CALLBACK ActivitiesWndProc(HWND hParentWindow, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     static HWND hDraw, hTree, Day, Rest, Administration, Work, Driving, hUTCLButton, hUTCRButton, hUTCString;
-    static Activities activities(nullptr, 0, 0);
     static LPCSTR Time;
     static LPCWSTR RestTime, AdministrationTime, WorkTime, DrivingTime, hUTCTime;
     static ActivitiesTree* Tree;
@@ -110,12 +109,11 @@ LRESULT CALLBACK ActivitiesWndProc(HWND hParentWindow, UINT msg, WPARAM wParam, 
         }
         case ID_ACTIVITIESTAB_UPDATE:
         {
-            activities.~Activities();
             int end = (gen1card.activitiesDATAptr[0] << 8) | gen1card.activitiesDATAptr[1];
             int start = (gen1card.activitiesDATAptr[2] << 8) | gen1card.activitiesDATAptr[3];
             activities.readActivities(gen1card.activitiesDATAptr+4, end, start);
 
-            if (Tree) delete Tree;
+            if (Tree) delete Tree, Tree = nullptr;
             Tree = new ActivitiesTree(hTree, activities);
             Tree->CreateTree();
             Tree->UpdateTreeVehicles(vehicles.ptrWrp);
@@ -126,7 +124,9 @@ LRESULT CALLBACK ActivitiesWndProc(HWND hParentWindow, UINT msg, WPARAM wParam, 
         }
         case ID_ACTIVITIESTAB_RESET:
         {
-            activities.~Activities();
+            // dummy, u already call this before ID_ACTIVITIESTAB_UPDATE :D
+            // no need for twice
+            activities = Activities(nullptr, 0, 0);
             SendMessage(hTree, TVM_DELETEITEM, 0, (LPARAM)TVI_ROOT);
             break;
         }

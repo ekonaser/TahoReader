@@ -4,7 +4,7 @@
 g++ -Iinclude -Iproc -Itahoreader src/winmain.cpp include/functions.cpp include/structs.cpp include/readtachocardfunc.cpp tahoreader/TahoReader.cpp proc/mainwndproc.cpp proc/idwndproc.cpp proc/activitieswndproc.cpp proc/certwndproc.cpp proc/drawwndproc.cpp -luser32 -lgdi32 -lwinscard -lComdlg32 -o TahoReader.exe
 
 **GCC static**
-g++ -static -static-libgcc -static-libstdc++ -Iinclude -Iproc -Itahoreader src/winmain.cpp include/functions.cpp include/structs.cpp include/readtachocardfunc.cpp tahoreader/TahoReader.cpp proc/mainwndproc.cpp proc/idwndproc.cpp proc/activitieswndproc.cpp proc/certwndproc.cpp proc/drawwndproc.cpp -luser32 -lgdi32 -lwinscard -lComdlg32 -o TahoReader.exe
+g++ -static -static-libgcc -static-libstdc++ -Iinclude -Iproc -Itahoreader src/winmain.cpp include/functions.cpp include/structs.cpp include/readtachocardfunc.cpp tahoreader/TahoReader.cpp proc/mainwndproc.cpp proc/idwndproc.cpp proc/activitieswndproc.cpp proc/gnsswndproc.cpp proc/certwndproc.cpp proc/drawwndproc.cpp -luser32 -lgdi32 -lwinscard -lComdlg32 -o TahoReader.exe
 
 **MSVC not working**
 cl /EHsc /Iinclude /Iproc /Itahoreader src/winmain.cpp include/functions.cpp include/structs.cpp include/readtachocardfunc.cpp tahoreader/TahoReader.cpp proc/mainwndproc.cpp proc/idwndproc.cpp proc/activitieswndproc.cpp proc/certwndproc.cpp proc/drawwndproc.cpp /link user32.lib gdi32.lib Comdlg32.lib winscard.lib /SUBSYSTEM:WINDOWS /out:TahoReader.exe

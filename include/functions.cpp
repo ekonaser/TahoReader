@@ -10,6 +10,7 @@ G1Card gen1card;
 G2Card gen2card;
 IDNull idDataNull{};
 DriverLicenseNULL licenseDataNull{};
+Activities activities(nullptr, 0, 0);
 Vehicles vehicles(nullptr);
 
 int UTC = 0;
@@ -38,6 +39,26 @@ void DateStamp(uint32_t epoch, char* buffer, char mark)
     month += i;
     day += epoch / 86400;
     sprintf(buffer, "%04d%c%02d%c%02d", year, mark, month, mark, day);
+}
+
+void RestingFunc(int& recordingrest, int& duration)
+{
+    if (!recordingrest && (duration < 45))
+    {
+        recordingrest += 15;
+    }
+    else if (recordingrest && (duration <= 45) && (duration >= 30))
+    {
+        recordingrest += 30;
+    }
+    else if (recordingrest && (duration >= 45))
+    {
+        recordingrest += 30;
+    }
+    else if (!recordingrest && (duration >= 45))
+    {
+        recordingrest += 45;
+    }
 }
 
 void CreateMainMenu(){
@@ -88,8 +109,8 @@ void FlushMemory()
     memset(&licenseDataNull, 0, sizeof(DriverLicenseNULL));
 
     SendMessage(IDTab, ID_IDTAB_UPDATE, 0, 0);
+    SendMessage(ActivitiesTab, ID_ACTIVITIESTAB_RESET, 0, 0); // here we already reset variable activities
     HWND hWndtoDrawProc = FindWindowEx(ActivitiesTab, NULL, TEXT("DrawWindow"), NULL);
-    SendMessage(ActivitiesTab, ID_ACTIVITIESTAB_RESET, 0, 0);
     SendMessage(ActivitiesTab, ID_ACTIVITIESTAB_UPDATE_TIME, 0, 0);
     SendMessage(hWndtoDrawProc, ID_ACTIVITIESTAB_RESET, 0, 0);
     SendMessage(CertTab, ID_CERTSTAB_UPDATE, 0, 0);
@@ -101,8 +122,6 @@ int ReadTachographCard()
     
     if (reader.CheckStatus()) return -1;
     
-    FlushMemory();
-
     reader.SelectFile({0x00, 0xA4, 0x00, 0x0C, 0x02, 0xFF, 0x54, 0x41, 0x43, 0x48, 0x4F}); // selecting TAHO app 2 bytes
     
     /*EF*/

@@ -2,14 +2,15 @@
 #include "idwndproc.hpp"
 #include "certwndproc.hpp"
 #include "activitieswndproc.hpp"
+#include "gnsswndproc.hpp"
 #include "functions.hpp"
 #include <thread>
 
-HWND TabControl, IDTab, ActivitiesTab, CertTab;
+HWND TabControl, IDTab, ActivitiesTab, GNSSTab, CertTab;
 
 LRESULT CALLBACK MainWndProc(HWND hMainWindow, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-    const static WCHAR Tab1[] = L"ID", Tab2[] = L"Activities", Tab3[] = L"Certificates";
+    const static WCHAR Tab1[] = L"ID", Tab2[] = L"Activities", Tab3[] = L"GNSS", Tab4[] = L"Miscellaneous";
     static TCITEM tci = {};
     switch (msg)
     {
@@ -23,6 +24,7 @@ LRESULT CALLBACK MainWndProc(HWND hMainWindow, UINT msg, WPARAM wParam, LPARAM l
             SetTabNames(tci, TabControl, (LPWSTR)Tab1, 0);
             SetTabNames(tci, TabControl, (LPWSTR)Tab2, 1);
             SetTabNames(tci, TabControl, (LPWSTR)Tab3, 2);
+            SetTabNames(tci, TabControl, (LPWSTR)Tab4, 3);
 
             WNDCLASS TabWindowsCl = {0};
             SetWindowAttr(TabWindowsCl, (HBRUSH)(COLOR_WINDOW+1), IDC_ARROW, NULL,
@@ -34,7 +36,11 @@ LRESULT CALLBACK MainWndProc(HWND hMainWindow, UINT msg, WPARAM wParam, LPARAM l
             RegisterClass(&TabWindowsCl);
 
             SetWindowAttr(TabWindowsCl, (HBRUSH)(COLOR_WINDOW), IDC_ARROW, NULL,
-                ((LPCREATESTRUCT)lParam)->hInstance, CertificatesWndProc, Tab3, NULL, CS_HREDRAW | CS_VREDRAW);
+                ((LPCREATESTRUCT)lParam)->hInstance, GNSSWndProc, Tab3, NULL, CS_HREDRAW | CS_VREDRAW);
+            RegisterClass(&TabWindowsCl);
+
+            SetWindowAttr(TabWindowsCl, (HBRUSH)(COLOR_WINDOW), IDC_ARROW, NULL,
+                ((LPCREATESTRUCT)lParam)->hInstance, CertificatesWndProc, Tab4, NULL, CS_HREDRAW | CS_VREDRAW);
             RegisterClass(&TabWindowsCl);
 
             GetClientRect(TabControl, &TabRect);
@@ -46,8 +52,12 @@ LRESULT CALLBACK MainWndProc(HWND hMainWindow, UINT msg, WPARAM wParam, LPARAM l
             ActivitiesTab = CreateWindowEx(0, Tab2, NULL, WS_CHILD,
                 TabRect.left, TabRect.right + 40, TabRect.right - TabRect.left, TabRect.bottom - (TabRect.right + 40),
                 TabControl, (HMENU)ID_ACTIVITIESTAB, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
+
+            GNSSTab = CreateWindowEx(0, Tab3, NULL, WS_CHILD,
+                TabRect.left, TabRect.right + 40, TabRect.right - TabRect.left, TabRect.bottom - (TabRect.right + 40),
+                TabControl, (HMENU)ID_GNSSTAB, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
             
-            CertTab = CreateWindowEx(0, Tab3, NULL, WS_CHILD,
+            CertTab = CreateWindowEx(0, Tab4, NULL, WS_CHILD,
                 TabRect.left, TabRect.right + 40, TabRect.right - TabRect.left, TabRect.bottom - (TabRect.right + 40),
                 TabControl, (HMENU)ID_CERTSTAB, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
 
@@ -69,7 +79,8 @@ LRESULT CALLBACK MainWndProc(HWND hMainWindow, UINT msg, WPARAM wParam, LPARAM l
                 int selectedtab = TabCtrl_GetCurSel(TabControl);
                 ShowWindow(IDTab, selectedtab == 0 ? SW_SHOW : SW_HIDE);
                 ShowWindow(ActivitiesTab, selectedtab == 1 ? SW_SHOW : SW_HIDE);
-                ShowWindow(CertTab, selectedtab == 2 ? SW_SHOW : SW_HIDE);
+                ShowWindow(GNSSTab, selectedtab == 2 ? SW_SHOW : SW_HIDE);
+                ShowWindow(CertTab, selectedtab == 3 ? SW_SHOW : SW_HIDE);
             }
             break;
         }
@@ -86,6 +97,7 @@ LRESULT CALLBACK MainWndProc(HWND hMainWindow, UINT msg, WPARAM wParam, LPARAM l
 
             MoveWindow(IDTab, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, TRUE);
             MoveWindow(ActivitiesTab, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, TRUE);
+            MoveWindow(GNSSTab, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, TRUE);
             MoveWindow(CertTab, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, TRUE);
 
             break;
@@ -98,6 +110,7 @@ LRESULT CALLBACK MainWndProc(HWND hMainWindow, UINT msg, WPARAM wParam, LPARAM l
                 {
                     std::thread([]()
                     {
+                        FlushMemory();
                         if (!ReadTachographCard()) {
                             SendMessage(IDTab, ID_IDTAB_UPDATE, 0, 0);
                             SendMessage(ActivitiesTab, ID_ACTIVITIESTAB_UPDATE, 0, 0);
@@ -160,6 +173,7 @@ LRESULT CALLBACK MainWndProc(HWND hMainWindow, UINT msg, WPARAM wParam, LPARAM l
                 {
                     std::thread([]()
                     {
+                        FlushMemory();
                         if (!ReadTachographCard()) {
                             SendMessage(IDTab, ID_IDTAB_UPDATE, 0, 0);
                             SendMessage(ActivitiesTab, ID_ACTIVITIESTAB_UPDATE, 0, 0);
