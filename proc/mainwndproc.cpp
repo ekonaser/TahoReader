@@ -53,7 +53,7 @@ LRESULT CALLBACK MainWndProc(HWND hMainWindow, UINT msg, WPARAM wParam, LPARAM l
                 TabRect.left, TabRect.right + 40, TabRect.right - TabRect.left, TabRect.bottom - (TabRect.right + 40),
                 TabControl, (HMENU)ID_ACTIVITIESTAB, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
 
-            GNSSTab = CreateWindowEx(0, Tab3, NULL, WS_CHILD,
+            GNSSTab = CreateWindowEx(0, Tab3, NULL, WS_CHILD | WS_VISIBLE, // WS_VISIBLE for webview to render page, maybe it's a bug
                 TabRect.left, TabRect.right + 40, TabRect.right - TabRect.left, TabRect.bottom - (TabRect.right + 40),
                 TabControl, (HMENU)ID_GNSSTAB, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
             
@@ -70,6 +70,17 @@ LRESULT CALLBACK MainWndProc(HWND hMainWindow, UINT msg, WPARAM wParam, LPARAM l
                 ReadTachographFile(filePath);
                 PostMessage(IDTab, ID_IDTAB_UPDATE, 0, 0);
             }*/
+            if (webviewGNSS.WebViewIsInstalled())
+            {
+                webviewGNSS.InitWebView(GNSSTab);
+            } else {
+                MessageBoxA(hMainWindow, "WebView is not installed", NULL, MB_OK | MB_ICONERROR);
+                ShellExecuteW(nullptr, L"open",
+                    L"https://developer.microsoft.com/en-us/microsoft-edge/webview2/#download-section",
+                    nullptr, nullptr, SW_SHOWNORMAL);
+                ShowWindow(GNSSTab, SW_HIDE);
+            }
+            
             break;
         }
         case WM_NOTIFY:
@@ -166,6 +177,7 @@ LRESULT CALLBACK MainWndProc(HWND hMainWindow, UINT msg, WPARAM wParam, LPARAM l
                 case 103:
                 {
                     FlushMemory();
+                    //std::filesystem::remove_all(std::filesystem::current_path() / "TahoReader.exe.WebView2");
                     PostQuitMessage(0);
                     break;
                 }
@@ -197,6 +209,7 @@ LRESULT CALLBACK MainWndProc(HWND hMainWindow, UINT msg, WPARAM wParam, LPARAM l
         case WM_DESTROY:
         {
             FlushMemory();
+            //std::filesystem::remove_all(std::filesystem::current_path() / "TahoReader.exe.WebView2");
             PostQuitMessage(0);
             break;
         }

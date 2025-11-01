@@ -33,11 +33,39 @@
     "stop_token": "cpp",
     "tuple": "cpp",
     "type_traits": "cpp",
-    "typeinfo": "cpp"
+    "typeinfo": "cpp",
+    "filesystem": "cpp",
+    "algorithm": "cpp",
+    "bit": "cpp",
+    "cctype": "cpp",
+    "chrono": "cpp",
+    "clocale": "cpp",
+    "format": "cpp",
+    "forward_list": "cpp",
+    "iomanip": "cpp",
+    "ios": "cpp",
+    "istream": "cpp",
+    "iterator": "cpp",
+    "locale": "cpp",
+    "optional": "cpp",
+    "sstream": "cpp",
+    "stdexcept": "cpp",
+    "streambuf": "cpp",
+    "string": "cpp",
+    "system_error": "cpp",
+    "xfacet": "cpp",
+    "xiosbase": "cpp",
+    "xlocale": "cpp",
+    "xlocbuf": "cpp",
+    "xlocmes": "cpp",
+    "xlocmon": "cpp",
+    "xlocnum": "cpp",
+    "xloctime": "cpp"
   },
   "C_Cpp.default.includePath": [
     "${workspaceFolder}//include",
     "${workspaceFolder}//proc",
-    "${workspaceFolder}//tahoreader"
+    "${workspaceFolder}//tahoreader",
+    "${workspaceFolder}//include//SDK//build//native//include"
   ]
 }

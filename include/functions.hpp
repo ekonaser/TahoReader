@@ -7,12 +7,14 @@
 #include <Windows.h>
 #include <CommCtrl.h>
 #include "structs.hpp"
+#include <filesystem>
 
 // global handles
 extern HWND TabControl, IDTab, ActivitiesTab, GNSSTab, CertTab;
 
 // menu
 extern HMENU MainMenu;
+extern WebView webviewGNSS;
 
 // main driver card data/sections
 // if we wanna copy data in one shot 2 structs are needed original && with nullterms

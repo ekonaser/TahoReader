@@ -6,6 +6,7 @@
 #include <initializer_list>
 
 HMENU MainMenu;
+WebView webviewGNSS;
 G1Card gen1card;
 G2Card gen2card;
 IDNull idDataNull{};
@@ -259,7 +260,7 @@ void RedrawBitMap(int left, int top, int right, int bottom, HDC& memDC, HWND& Wi
 void WriteToFile(FILE* fp, std::initializer_list<BYTE> arr, BYTE* data, int size)
 {
     fwrite(arr.begin(), arr.size(), 1, fp);
-    fwrite(data, size, 1, fp);
+    if (data) fwrite(data, size, 1, fp);
 }
 
 void WriteDDD(HWND& hWindow)

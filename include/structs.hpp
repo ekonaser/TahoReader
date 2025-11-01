@@ -5,6 +5,8 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <unordered_map>
+#include <wrl.h>
+#include <WebView2.h>
 
 #pragma pack(push, 1)
 struct IDNull {
@@ -199,4 +201,11 @@ struct G2Card : G1Card
     BYTE* GNSS = nullptr;                   // 05 24 Global Navigation Satellite System
     G2Card() = default;
     ~G2Card();
+};
+
+struct WebView{
+    Microsoft::WRL::ComPtr<ICoreWebView2Controller> webviewController{};
+    Microsoft::WRL::ComPtr<ICoreWebView2> webview{};
+    bool WebViewIsInstalled();
+    void InitWebView(HWND& hwnd);
 };

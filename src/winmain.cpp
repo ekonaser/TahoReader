@@ -2,6 +2,7 @@
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR filePath, int cmdshow)
 {
+    CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
     // main window attributes
     WNDCLASS MainWndAttr = {0};
     MainWndAttr.hbrBackground = (HBRUSH)(COLOR_WINDOW);
@@ -24,12 +25,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR filePath,
     ShowWindow(MainWindow, cmdshow);
     UpdateWindow(MainWindow);
 
-    MSG messages;
+    MSG messages = {};
 
     while (GetMessage(&messages, NULL, 0, 0))
     {
         TranslateMessage(&messages);
         DispatchMessage(&messages);
     }
+    CoUninitialize();
     return 0;
 }

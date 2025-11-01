@@ -348,3 +348,36 @@ G2Card::~G2Card() {
     delete[] vehicleUnitsUsed;
     delete[] GNSS;
 }
+
+bool WebView::WebViewIsInstalled()
+{
+    return std::filesystem::exists("C:\\Program Files (x86)\\Microsoft\\EdgeWebView");
+}
+
+void WebView::InitWebView(HWND& hwnd) {
+    /* LAMBDA FUNCTIONS */
+    /* variable = [capture clause](parameters) return type {function body, return something}*/
+    // capture clause = current scope variable thats put into lambda use
+    // we use lambdas from wrl.h bcs of simplicity and easier understanding
+    auto onControllerCreated = [this, hwnd](HRESULT result, ICoreWebView2Controller* controller) -> HRESULT {
+        if (controller) {
+            webviewController = controller;
+            webviewController->get_CoreWebView2(&webview);
+            RECT bounds;
+            GetClientRect(hwnd, &bounds);
+            webviewController->put_Bounds(bounds);
+            webview->Navigate(L"https://www.openstreetmap.org/");
+            ShowWindow(hwnd, SW_HIDE);
+        }
+        return S_OK;
+    };
+
+    auto onEnvironmentCreated = [hwnd, onControllerCreated](HRESULT result, ICoreWebView2Environment* env) -> HRESULT {
+        env->CreateCoreWebView2Controller(hwnd, Microsoft::WRL::Callback<ICoreWebView2CreateCoreWebView2ControllerCompletedHandler>(onControllerCreated).Get());
+        return S_OK;
+    };
+
+    CreateCoreWebView2EnvironmentWithOptions(
+        nullptr, nullptr, nullptr,
+        Microsoft::WRL::Callback<ICoreWebView2CreateCoreWebView2EnvironmentCompletedHandler>(onEnvironmentCreated).Get());
+}

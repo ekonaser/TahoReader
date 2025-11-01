@@ -1,10 +1,6 @@
 /*HOW TO BUILD*/
 
-**GCC**
-g++ -Iinclude -Iproc -Itahoreader src/winmain.cpp include/functions.cpp include/structs.cpp include/readtachocardfunc.cpp tahoreader/TahoReader.cpp proc/mainwndproc.cpp proc/idwndproc.cpp proc/activitieswndproc.cpp proc/certwndproc.cpp proc/drawwndproc.cpp -luser32 -lgdi32 -lwinscard -lComdlg32 -o TahoReader.exe
+**GCC - not supported**
 
-**GCC static**
-g++ -static -static-libgcc -static-libstdc++ -Iinclude -Iproc -Itahoreader src/winmain.cpp include/functions.cpp include/structs.cpp include/readtachocardfunc.cpp tahoreader/TahoReader.cpp proc/mainwndproc.cpp proc/idwndproc.cpp proc/activitieswndproc.cpp proc/gnsswndproc.cpp proc/certwndproc.cpp proc/drawwndproc.cpp -luser32 -lgdi32 -lwinscard -lComdlg32 -o TahoReader.exe
-
-**MSVC not working**
-cl /EHsc /Iinclude /Iproc /Itahoreader src/winmain.cpp include/functions.cpp include/structs.cpp include/readtachocardfunc.cpp tahoreader/TahoReader.cpp proc/mainwndproc.cpp proc/idwndproc.cpp proc/activitieswndproc.cpp proc/certwndproc.cpp proc/drawwndproc.cpp /link user32.lib gdi32.lib Comdlg32.lib winscard.lib /SUBSYSTEM:WINDOWS /out:TahoReader.exe
+**MSVC**
+cl /EHsc /std:c++17 /Iinclude /Iproc /Itahoreader /Iinclude\SDK\build\native\include src/winmain.cpp include/functions.cpp include/structs.cpp include/readtachocardfunc.cpp tahoreader/TahoReader.cpp proc/mainwndproc.cpp proc/idwndproc.cpp proc/activitieswndproc.cpp proc/gnsswndproc.cpp proc/certwndproc.cpp proc/drawwndproc.cpp user32.lib gdi32.lib winscard.lib comdlg32.lib advapi32.lib Shell32.lib WebView2LoaderStatic.lib /link /LIBPATH:"include\SDK\build\native\x86" /MACHINE:X86 /OUT:TahoReader.exe
